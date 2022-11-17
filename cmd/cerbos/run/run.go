@@ -124,7 +124,7 @@ func (c *Cmd) Run(k *kong.Kong) error {
 		}
 
 		if status.Complete {
-			log.Infof("Command finished with status %d", status.Exit)
+			log.Infof("[ERR-137] Command finished with status %d", status.Exit)
 		}
 
 		cleanup()
@@ -135,7 +135,7 @@ func (c *Cmd) Run(k *kong.Kong) error {
 			k.Exit(status.Exit)
 		}
 	case <-notifyCtx.Done():
-		log.Info("Terminated by signal")
+		log.Info("[ERR-138] Terminated by signal")
 		cleanup()
 	}
 
@@ -147,7 +147,7 @@ func (c *Cmd) loadConfig() error {
 	confOverrides := map[string]any{}
 	for _, override := range c.Set {
 		if err := strvals.ParseInto(override, confOverrides); err != nil {
-			return fmt.Errorf("failed to parse config override [%s]: %w", override, err)
+			return fmt.Errorf("[ERR-139] failed to parse config override [%s]: %w", override, err)
 		}
 	}
 
@@ -155,28 +155,28 @@ func (c *Cmd) loadConfig() error {
 	//nolint:nestif
 	if c.Config != "" {
 		if err := config.Load(c.Config, confOverrides); err != nil {
-			return fmt.Errorf("failed to load configuration from %s: %w", c.Config, err)
+			return fmt.Errorf("[ERR-140] failed to load configuration from %s: %w", c.Config, err)
 		}
 	} else if fd, err := os.Stat("cerbos.yaml"); err == nil && !fd.IsDir() {
 		if err := config.Load("cerbos.yaml", confOverrides); err != nil {
-			return fmt.Errorf("failed to load configuration from cerbos.yaml: %w", err)
+			return fmt.Errorf("[ERR-141] failed to load configuration from cerbos.yaml: %w", err)
 		}
 	} else {
 		wd, err := os.Getwd()
 		if err != nil {
-			return fmt.Errorf("failed to determine current working directory: %w", err)
+			return fmt.Errorf("[ERR-142] failed to determine current working directory: %w", err)
 		}
 
 		policyDir := filepath.Join(wd, "policies")
 		if _, err := os.Stat(policyDir); err != nil && errors.Is(err, os.ErrNotExist) {
 			if err := os.Mkdir(policyDir, 0o744); err != nil { //nolint:gomnd
-				return fmt.Errorf("unable to create policies directory: %w", err)
+				return fmt.Errorf("[ERR-143] unable to create policies directory: %w", err)
 			}
 		}
 
 		confYAML := fmt.Sprintf(confDefault, policyDir)
 		if err := config.LoadReader(strings.NewReader(confYAML), confOverrides); err != nil {
-			return fmt.Errorf("failed to load default Cerbos configuration: %w", err)
+			return fmt.Errorf("[ERR-144] failed to load default Cerbos configuration: %w", err)
 		}
 	}
 
@@ -186,7 +186,7 @@ func (c *Cmd) loadConfig() error {
 func (c *Cmd) startPDP(ctx context.Context) (*pdpInstance, error) {
 	var conf server.Conf
 	if err := config.GetSection(&conf); err != nil {
-		return nil, fmt.Errorf("failed to obtain server config; %w", err)
+		return nil, fmt.Errorf("[ERR-145] failed to obtain server config; %w", err)
 	}
 
 	protocol := "http"
@@ -211,7 +211,7 @@ func (c *Cmd) startPDP(ctx context.Context) (*pdpInstance, error) {
 	waitCtx, cancelFn := context.WithTimeout(ctx, c.Timeout)
 	defer cancelFn()
 	if err := instance.waitForReady(waitCtx); err != nil {
-		return nil, fmt.Errorf("error starting Cerbos PDP: %w", err)
+		return nil, fmt.Errorf("[ERR-146] error starting Cerbos PDP: %w", err)
 	}
 
 	return instance, nil
@@ -318,7 +318,7 @@ func (pdp *pdpInstance) checkHealth(client *http.Client, healthURL string) error
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("received status %q", resp.Status)
+		return fmt.Errorf("[ERR-147] received status %q", resp.Status)
 	}
 
 	return nil

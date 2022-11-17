@@ -386,7 +386,7 @@ func intersect(lhs, rhs ref.Val) ref.Val {
 func (clib cerbosLib) inIPAddrRangeFunc(ipAddrVal, cidrVal string) (bool, error) {
 	ipAddr := net.ParseIP(ipAddrVal)
 	if ipAddr == nil {
-		return false, fmt.Errorf("invalid IP address: %s", ipAddrVal)
+		return false, fmt.Errorf("[ERR-287] invalid IP address: %s", ipAddrVal)
 	}
 
 	_, cidr, err := net.ParseCIDR(cidrVal)

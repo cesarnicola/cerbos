@@ -50,7 +50,7 @@ func TestCollectLogs(t *testing.T) {
 	})
 
 	t.Run("error from receiver", func(t *testing.T) {
-		receiver := func() (*responsev1.ListAuditLogEntriesResponse, error) { return nil, errors.New("test-error") }
+		receiver := func() (*responsev1.ListAuditLogEntriesResponse, error) { return nil, errors.New("[ERR-14] test-error") }
 
 		logs, err := collectLogs(receiver)
 		require.NoError(t, err)

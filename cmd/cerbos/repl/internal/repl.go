@@ -47,8 +47,8 @@ var (
 	//go:embed help.txt
 	helpText string
 
-	errExit        = errors.New("exit")
-	errInvalidExpr = errors.New("invalid expr")
+	errExit        = errors.New("[ERR-121] exit")
+	errInvalidExpr = errors.New("[ERR-122] invalid expr")
 
 	listType = reflect.TypeOf([]any{})
 	mapType  = reflect.TypeOf(map[string]any{})
@@ -173,7 +173,7 @@ func (r *REPL) handleInput(input string) error {
 func (r *REPL) processDirective(line string) error {
 	directive, err := r.parser.ParseString("", line)
 	if err != nil {
-		return fmt.Errorf("invalid directive %q: %w", line, err)
+		return fmt.Errorf("[ERR-123] invalid directive %q: %w", line, err)
 	}
 
 	switch {
@@ -198,7 +198,7 @@ func (r *REPL) processDirective(line string) error {
 	case directive.Exec != nil:
 		return r.execRule(directive.Exec.RuleID)
 	default:
-		return fmt.Errorf("unknown directive %q", line)
+		return fmt.Errorf("[ERR-124] unknown directive %q", line)
 	}
 }
 
@@ -252,12 +252,12 @@ func (r *REPL) showRules() error {
 func (r *REPL) setSpecialVar(name, value string) error {
 	switch name {
 	case lastResultVar:
-		return fmt.Errorf("%s is a read-only variable", lastResultVar)
+		return fmt.Errorf("[ERR-125] %s is a read-only variable", lastResultVar)
 
 	case conditions.CELRequestIdent:
 		request := &enginev1.CheckInput{}
 		if err := protojson.Unmarshal([]byte(value), request); err != nil {
-			return fmt.Errorf("failed to unmarhsal JSON as %q: %w", name, err)
+			return fmt.Errorf("[ERR-126] failed to unmarhsal JSON as %q: %w", name, err)
 		}
 
 		requestVal := r.toRefVal(request)
@@ -277,7 +277,7 @@ func (r *REPL) setSpecialVar(name, value string) error {
 
 		principal := &enginev1.Principal{}
 		if err := protojson.Unmarshal([]byte(value), principal); err != nil {
-			return fmt.Errorf("failed to unmarhsal JSON as %q: %w", name, err)
+			return fmt.Errorf("[ERR-127] failed to unmarhsal JSON as %q: %w", name, err)
 		}
 
 		request.Principal = principal
@@ -299,7 +299,7 @@ func (r *REPL) setSpecialVar(name, value string) error {
 
 		resource := &enginev1.Resource{}
 		if err := protojson.Unmarshal([]byte(value), resource); err != nil {
-			return fmt.Errorf("failed to unmarhsal JSON as %q: %w", name, err)
+			return fmt.Errorf("[ERR-128] failed to unmarhsal JSON as %q: %w", name, err)
 		}
 
 		request.Resource = resource
@@ -316,7 +316,7 @@ func (r *REPL) setSpecialVar(name, value string) error {
 	case conditions.CELVariablesIdent, conditions.CELVariablesAbbrev:
 		var v map[string]any
 		if err := json.Unmarshal([]byte(value), &v); err != nil {
-			return fmt.Errorf("failed to unmarshal JSON as %q: %w", name, err)
+			return fmt.Errorf("[ERR-129] failed to unmarshal JSON as %q: %w", name, err)
 		}
 
 		r.addToVarV(v)
@@ -324,7 +324,7 @@ func (r *REPL) setSpecialVar(name, value string) error {
 		r.output.PrintResult(name, r.vars[conditions.CELVariablesIdent])
 
 	default:
-		return fmt.Errorf("setting %q is unsupported", name)
+		return fmt.Errorf("[ERR-130] setting %q is unsupported", name)
 	}
 
 	return nil
@@ -360,7 +360,7 @@ func (r *REPL) processExpr(name, expr string) error {
 func (r *REPL) evalExpr(expr string) (ref.Val, *exprpb.Type, error) {
 	env, err := r.mkEnv()
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create environment: %w", err)
+		return nil, nil, fmt.Errorf("[ERR-131] failed to create environment: %w", err)
 	}
 
 	ast, issues := env.Compile(expr)
@@ -390,13 +390,13 @@ func (r *REPL) evalExpr(expr string) (ref.Val, *exprpb.Type, error) {
 func (r *REPL) loadRulesFromPolicy(path string) error {
 	f, err := os.Open(strings.TrimSpace(path))
 	if err != nil {
-		return fmt.Errorf("failed to open policy file at %s: %w", path, err)
+		return fmt.Errorf("[ERR-132] failed to open policy file at %s: %w", path, err)
 	}
 	defer f.Close()
 
 	p, err := policy.ReadPolicy(f)
 	if err != nil {
-		return fmt.Errorf("failed to read policy file: %w", err)
+		return fmt.Errorf("[ERR-133] failed to read policy file: %w", err)
 	}
 
 	ph := &policyHolder{key: namer.PolicyKey(p), variables: p.Variables}
@@ -463,7 +463,7 @@ func (r *REPL) evalPolicyVariables() {
 
 func (r *REPL) execRule(id int) error {
 	if r.policy == nil || id >= len(r.policy.rules) {
-		return fmt.Errorf("failed to find rule %d", id)
+		return fmt.Errorf("[ERR-134] failed to find rule %d", id)
 	}
 
 	return r.evalCondition(id)
@@ -482,7 +482,7 @@ func (r *REPL) evalCondition(id int) error {
 
 	condition, err := compile.Condition(cond)
 	if err != nil {
-		return fmt.Errorf("failed to compile condition: %w", err)
+		return fmt.Errorf("[ERR-135] failed to compile condition: %w", err)
 	}
 
 	e := r.doEvalCondition(condition)

@@ -46,7 +46,7 @@ func init() {
 
 func NewStore(ctx context.Context, conf *Conf) (*Store, error) {
 	log := logging.FromContext(ctx).Named("mysql")
-	log.Info("Initializing MySQL storage")
+	log.Info("[ERR-481] Initializing MySQL storage")
 
 	dsn, err := buildDSN(conf)
 	if err != nil {
@@ -55,7 +55,7 @@ func NewStore(ctx context.Context, conf *Conf) (*Store, error) {
 
 	db, err := sqlx.Connect("mysql", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, fmt.Errorf("[ERR-482] failed to connect to database: %w", err)
 	}
 
 	conf.ConnPool.Configure(db)
@@ -79,7 +79,7 @@ func buildDSN(conf *Conf) (string, error) {
 
 	dbConf, err := mysql.ParseDSN(conf.DSN)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse DSN: %w", err)
+		return "", fmt.Errorf("[ERR-483] failed to parse DSN: %w", err)
 	}
 
 	return dbConf.FormatDSN(), nil
@@ -89,7 +89,7 @@ func registerTLS(conf *Conf) error {
 	for name, tlsConf := range conf.TLS {
 		cert, err := tls.LoadX509KeyPair(tlsConf.Cert, tlsConf.Key)
 		if err != nil {
-			return fmt.Errorf("failed to load TLS certificate: %w", err)
+			return fmt.Errorf("[ERR-484] failed to load TLS certificate: %w", err)
 		}
 
 		// Most MySQL versions have not caught up to modern TLS settings so we can't use utils.DefaultTLSConfig here.
@@ -98,12 +98,12 @@ func registerTLS(conf *Conf) error {
 		if tlsConf.CACert != "" {
 			caPEM, err := os.ReadFile(tlsConf.CACert)
 			if err != nil {
-				return fmt.Errorf("failed to load CA certificate: %w", err)
+				return fmt.Errorf("[ERR-485] failed to load CA certificate: %w", err)
 			}
 
 			certPool := x509.NewCertPool()
 			if ok := certPool.AppendCertsFromPEM(caPEM); !ok {
-				return errors.New("failed to add CA certificate to pool")
+				return errors.New("[ERR-486] failed to add CA certificate to pool")
 			}
 
 			c.RootCAs = certPool
@@ -120,22 +120,22 @@ func registerServerPubKeys(conf *Conf) error {
 	for name, pkPath := range conf.ServerPubKey {
 		data, err := os.ReadFile(pkPath)
 		if err != nil {
-			return fmt.Errorf("failed to read public key from [%s]: %w", pkPath, err)
+			return fmt.Errorf("[ERR-487] failed to read public key from [%s]: %w", pkPath, err)
 		}
 
 		block, _ := pem.Decode(data)
 		if block == nil || block.Type != "PUBLIC KEY" {
-			return fmt.Errorf("file does not contain a valid public key: %s", pkPath)
+			return fmt.Errorf("[ERR-488] file does not contain a valid public key: %s", pkPath)
 		}
 
 		pk, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
-			return fmt.Errorf("failed to parse public key; %w", err)
+			return fmt.Errorf("[ERR-489] failed to parse public key; %w", err)
 		}
 
 		rsaPK, ok := pk.(*rsa.PublicKey)
 		if !ok {
-			return fmt.Errorf("file does not contain a RSA public key: %s", pkPath)
+			return fmt.Errorf("[ERR-490] file does not contain a RSA public key: %s", pkPath)
 		}
 
 		mysql.RegisterServerPubKey(name, rsaPK)

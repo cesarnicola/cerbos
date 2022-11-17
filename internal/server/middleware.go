@@ -104,7 +104,7 @@ func customHTTPResponseCode(ctx context.Context, w http.ResponseWriter, _ proto.
 	if vals := md.HeaderMD.Get("x-http-code"); len(vals) > 0 {
 		code, err := strconv.Atoi(vals[0])
 		if err != nil {
-			return fmt.Errorf("invalid http code: %w", err)
+			return fmt.Errorf("[ERR-391] invalid http code: %w", err)
 		}
 
 		delete(md.HeaderMD, "x-http-code")

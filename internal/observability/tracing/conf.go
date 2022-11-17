@@ -15,11 +15,11 @@ const (
 )
 
 var (
-	errJaegerConfigUndefined   = errors.New("jaeger configuration is empty")
-	errJaegerEndpointUndefined = errors.New("jaeger endpoint undefined")
+	errJaegerConfigUndefined   = errors.New("[ERR-339] jaeger configuration is empty")
+	errJaegerEndpointUndefined = errors.New("[ERR-340] jaeger endpoint undefined")
 
-	errOTLPConfigUndefined   = errors.New("otlp configuration is empty")
-	errOTLPEndpointUndefined = errors.New("otlp endpoint undefined")
+	errOTLPConfigUndefined   = errors.New("[ERR-341] otlp configuration is empty")
+	errOTLPEndpointUndefined = errors.New("[ERR-342] otlp endpoint undefined")
 )
 
 // Conf is optional configuration for tracing.
@@ -80,6 +80,6 @@ func (c *Conf) Validate() error {
 		return nil
 
 	default:
-		return fmt.Errorf("unknown trace exporter %s", c.Exporter)
+		return fmt.Errorf("[ERR-343] unknown trace exporter %s", c.Exporter)
 	}
 }

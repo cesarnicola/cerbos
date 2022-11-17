@@ -39,7 +39,7 @@ const (
 
 var (
 	defaultAdminPasswordHash = base64.StdEncoding.EncodeToString([]byte(defaultRawAdminPasswordHash))
-	errAdminCredsUndefined   = errors.New("admin credentials not defined")
+	errAdminCredsUndefined   = errors.New("[ERR-383] admin credentials not defined")
 )
 
 // Conf is required configuration for the server.
@@ -110,7 +110,7 @@ func (a *AdminCredentialsConf) usernameAndPasswordHash() (string, []byte, error)
 
 	passwordHashBytes, err := base64.StdEncoding.DecodeString(a.PasswordHash)
 	if err != nil {
-		return "", nil, fmt.Errorf("failed to base64 decode admin passwordHash: %w", err)
+		return "", nil, fmt.Errorf("[ERR-384] failed to base64 decode admin passwordHash: %w", err)
 	}
 
 	return a.Username, passwordHashBytes, nil
@@ -199,25 +199,25 @@ func (c *Conf) SetDefaults() {
 
 func (c *Conf) Validate() (errs error) {
 	if _, _, err := util.ParseListenAddress(c.HTTPListenAddr); err != nil {
-		errs = multierr.Append(errs, fmt.Errorf("invalid httpListenAddr '%s': %w", c.HTTPListenAddr, err))
+		errs = multierr.Append(errs, fmt.Errorf("[ERR-385] invalid httpListenAddr '%s': %w", c.HTTPListenAddr, err))
 	}
 
 	if _, _, err := util.ParseListenAddress(c.GRPCListenAddr); err != nil {
-		errs = multierr.Append(errs, fmt.Errorf("invalid grpcListenAddr '%s': %w", c.GRPCListenAddr, err))
+		errs = multierr.Append(errs, fmt.Errorf("[ERR-386] invalid grpcListenAddr '%s': %w", c.GRPCListenAddr, err))
 	}
 
 	if mode, err := strconv.ParseInt(c.UDSFileMode, 0, 32); err != nil {
-		errs = multierr.Append(errs, fmt.Errorf("invalid udsFileMode %q: %w", c.UDSFileMode, err))
+		errs = multierr.Append(errs, fmt.Errorf("[ERR-387] invalid udsFileMode %q: %w", c.UDSFileMode, err))
 	} else if mode <= 0 {
-		errs = multierr.Append(errs, fmt.Errorf("invalid udsFileMode %q", c.UDSFileMode))
+		errs = multierr.Append(errs, fmt.Errorf("[ERR-388] invalid udsFileMode %q", c.UDSFileMode))
 	}
 
 	if c.RequestLimits.MaxActionsPerResource < 1 || c.RequestLimits.MaxActionsPerResource > requestItemsMax {
-		errs = multierr.Append(errs, fmt.Errorf("maxActionsPerResource must be between 1 and %d", requestItemsMax))
+		errs = multierr.Append(errs, fmt.Errorf("[ERR-389] maxActionsPerResource must be between 1 and %d", requestItemsMax))
 	}
 
 	if c.RequestLimits.MaxResourcesPerRequest < 1 || c.RequestLimits.MaxResourcesPerRequest > requestItemsMax {
-		errs = multierr.Append(errs, fmt.Errorf("maxResourcesPerRequest must be between 1 and %d", requestItemsMax))
+		errs = multierr.Append(errs, fmt.Errorf("[ERR-390] maxResourcesPerRequest must be between 1 and %d", requestItemsMax))
 	}
 
 	return errs

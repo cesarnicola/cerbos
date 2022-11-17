@@ -16,11 +16,11 @@ type Filters struct {
 
 func (f Filters) Validate(kind policy.Kind, listing bool) error {
 	if !listing && (len(f.Name) > 0 || len(f.Version) > 0) {
-		return fmt.Errorf("--name and --version flags are only available when listing")
+		return fmt.Errorf("[ERR-155] --name and --version flags are only available when listing")
 	}
 
 	if kind == policy.DerivedRolesKind && len(f.Version) > 0 {
-		return fmt.Errorf("--version flag is not available when listing derived roles")
+		return fmt.Errorf("[ERR-156] --version flag is not available when listing derived roles")
 	}
 
 	return nil

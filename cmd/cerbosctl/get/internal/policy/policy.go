@@ -19,14 +19,14 @@ import (
 func DoCmd(k *kong.Kong, ac client.AdminClient, kind policy.Kind, filters *flagset.Filters, format *flagset.Format, sort *flagset.Sort, args []string) error {
 	if len(args) == 0 {
 		if err := List(k, ac, filters, format, sort, kind); err != nil {
-			return fmt.Errorf("failed to list: %w", err)
+			return fmt.Errorf("[ERR-161] failed to list: %w", err)
 		}
 
 		return nil
 	}
 
 	if err := Get(k, ac, format, kind, args...); err != nil {
-		return fmt.Errorf("failed to get: %w", err)
+		return fmt.Errorf("[ERR-162] failed to get: %w", err)
 	}
 
 	return nil
@@ -35,7 +35,7 @@ func DoCmd(k *kong.Kong, ac client.AdminClient, kind policy.Kind, filters *flags
 func List(k *kong.Kong, c client.AdminClient, filters *flagset.Filters, format *flagset.Format, sortFlags *flagset.Sort, kind policy.Kind) error {
 	policyIds, err := c.ListPolicies(context.Background())
 	if err != nil {
-		return fmt.Errorf("error while requesting policies: %w", err)
+		return fmt.Errorf("[ERR-163] error while requesting policies: %w", err)
 	}
 
 	tw := printer.NewTableWriter(k.Stdout)
@@ -50,7 +50,7 @@ func List(k *kong.Kong, c client.AdminClient, filters *flagset.Filters, format *
 			idxEnd := internal.MinInt(idx+internal.MaxIDPerReq, len(policyIds))
 			policies, err := c.GetPolicy(context.Background(), policyIds[idx:idxEnd]...)
 			if err != nil {
-				return fmt.Errorf("error while requesting policy: %w", err)
+				return fmt.Errorf("[ERR-164] error while requesting policy: %w", err)
 			}
 
 			filtered := make([]policy.Wrapper, 0, len(policies))
@@ -88,7 +88,7 @@ func Get(k *kong.Kong, c client.AdminClient, format *flagset.Format, kind policy
 			idxEnd := internal.MinInt(idx+internal.MaxIDPerReq, len(ids))
 			policies, err := c.GetPolicy(context.Background(), ids[idx:idxEnd]...)
 			if err != nil {
-				return fmt.Errorf("error while requesting policy: %w", err)
+				return fmt.Errorf("[ERR-165] error while requesting policy: %w", err)
 			}
 
 			filtered := make([]policy.Wrapper, 0, len(policies))
@@ -104,13 +104,13 @@ func Get(k *kong.Kong, c client.AdminClient, format *flagset.Format, kind policy
 			}
 
 			if err = printPolicy(k.Stdout, filtered, format.Output); err != nil {
-				return fmt.Errorf("could not print policies: %w", err)
+				return fmt.Errorf("[ERR-166] could not print policies: %w", err)
 			}
 		}
 	}
 
 	if !foundPolicy {
-		return fmt.Errorf("failed to find specified policy")
+		return fmt.Errorf("[ERR-167] failed to find specified policy")
 	}
 
 	return nil

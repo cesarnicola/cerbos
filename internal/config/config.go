@@ -14,7 +14,7 @@ import (
 	"go.uber.org/config"
 )
 
-var ErrConfigNotLoaded = errors.New("config not loaded")
+var ErrConfigNotLoaded = errors.New("[ERR-289] config not loaded")
 
 var conf = &Wrapper{}
 
@@ -34,11 +34,11 @@ type Validator interface {
 func Load(confFile string, overrides map[string]any) error {
 	finfo, err := os.Stat(confFile)
 	if err != nil {
-		return fmt.Errorf("failed to stat %s: %w", confFile, err)
+		return fmt.Errorf("[ERR-290] failed to stat %s: %w", confFile, err)
 	}
 
 	if finfo.IsDir() {
-		return fmt.Errorf("config file path is a directory: %s", confFile)
+		return fmt.Errorf("[ERR-291] config file path is a directory: %s", confFile)
 	}
 
 	return doLoad(config.File(confFile), config.Static(overrides))
@@ -67,9 +67,9 @@ func mkProvider(sources ...config.YAMLOption) (config.Provider, error) {
 	provider, err := config.NewYAML(opts...)
 	if err != nil {
 		if strings.Contains(err.Error(), "couldn't expand environment") {
-			return nil, fmt.Errorf("error loading configuration due to unknown environment variable. Config values containing '$' are interpreted as environment variables. Use '$$' to escape literal '$' values: [%w]", err)
+			return nil, fmt.Errorf("[ERR-292] error loading configuration due to unknown environment variable. Config values containing '$' are interpreted as environment variables. Use '$$' to escape literal '$' values: [%w]", err)
 		}
-		return nil, fmt.Errorf("failed to load config: %w", err)
+		return nil, fmt.Errorf("[ERR-293] failed to load config: %w", err)
 	}
 
 	return provider, err

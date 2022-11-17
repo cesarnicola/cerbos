@@ -22,3 +22,8 @@ unit.cover
 integration.cover
 junit.*.xml
 test-times.json
+
+# Err0
+err0-cerbos*
+err0-insert.sh
+err0-check.sh

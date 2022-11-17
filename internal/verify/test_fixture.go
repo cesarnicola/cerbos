@@ -265,7 +265,7 @@ func (tf *testFixture) getTests(suite *policyv1.TestSuite) ([]*policyv1.Test, er
 	for _, table := range suite.Tests {
 		tests, err := tf.buildTests(suite, table)
 		if err != nil {
-			return nil, fmt.Errorf("invalid test %q: %w", table.Name, err)
+			return nil, fmt.Errorf("[ERR-628] invalid test %q: %w", table.Name, err)
 		}
 
 		allTests = append(allTests, tests...)
@@ -346,7 +346,7 @@ func (tf *testFixture) lookupPrincipal(ts *policyv1.TestSuite, k string) (*engin
 		}
 	}
 
-	return nil, fmt.Errorf("principal %q not found", k)
+	return nil, fmt.Errorf("[ERR-629] principal %q not found", k)
 }
 
 func (tf *testFixture) lookupResource(ts *policyv1.TestSuite, k string) (*enginev1.Resource, error) {
@@ -360,7 +360,7 @@ func (tf *testFixture) lookupResource(ts *policyv1.TestSuite, k string) (*engine
 		}
 	}
 
-	return nil, fmt.Errorf("resource %q not found", k)
+	return nil, fmt.Errorf("[ERR-630] resource %q not found", k)
 }
 
 func (tf *testFixture) lookupAuxData(ts *policyv1.TestSuite, k string) (*enginev1.AuxData, error) {
@@ -378,5 +378,5 @@ func (tf *testFixture) lookupAuxData(ts *policyv1.TestSuite, k string) (*enginev
 		}
 	}
 
-	return nil, fmt.Errorf("auxData %q not found", k)
+	return nil, fmt.Errorf("[ERR-631] auxData %q not found", k)
 }

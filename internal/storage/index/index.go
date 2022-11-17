@@ -27,11 +27,11 @@ import (
 
 var (
 	// ErrDuplicatePolicy signals that there are duplicate policy definitions.
-	ErrDuplicatePolicy = errors.New("duplicate policy definitions")
+	ErrDuplicatePolicy = errors.New("[ERR-558] duplicate policy definitions")
 	// ErrInvalidEntry signals that the index entry is invalid.
-	ErrInvalidEntry = errors.New("invalid index entry")
+	ErrInvalidEntry = errors.New("[ERR-559] invalid index entry")
 	// ErrPolicyNotFound signals that the policy does not exist.
-	ErrPolicyNotFound = errors.New("policy not found")
+	ErrPolicyNotFound = errors.New("[ERR-560] policy not found")
 )
 
 type Entry struct {
@@ -111,18 +111,18 @@ func (idx *index) GetCompilationUnits(ids ...namer.ModuleID) (map[namer.ModuleID
 
 		// add dependencies
 		if err := idx.addDepsToCompilationUnit(cu, id); err != nil {
-			return nil, fmt.Errorf("failed to load dependencies of %s: %w", policyKey, err)
+			return nil, fmt.Errorf("[ERR-561] failed to load dependencies of %s: %w", policyKey, err)
 		}
 
 		// load ancestors of the policy
 		for _, ancestor := range cu.Ancestors() {
 			p, err := idx.loadPolicy(ancestor)
 			if err != nil {
-				return nil, fmt.Errorf("failed to load ancestor %q of scoped policy %s: %w", ancestor.String(), policyKey, err)
+				return nil, fmt.Errorf("[ERR-562] failed to load ancestor %q of scoped policy %s: %w", ancestor.String(), policyKey, err)
 			}
 			cu.AddDefinition(ancestor, p)
 			if err := idx.addDepsToCompilationUnit(cu, ancestor); err != nil {
-				return nil, fmt.Errorf("failed to load dependencies of ancestor %q of %s: %w", ancestor.String(), policyKey, err)
+				return nil, fmt.Errorf("[ERR-563] failed to load dependencies of ancestor %q of %s: %w", ancestor.String(), policyKey, err)
 			}
 		}
 	}
@@ -151,7 +151,7 @@ func (idx *index) addDepsToCompilationUnit(cu *policy.CompilationUnit, id namer.
 func (idx *index) loadPolicy(id namer.ModuleID) (*policyv1.Policy, error) {
 	fileName, ok := idx.modIDToFile[id]
 	if !ok {
-		return nil, fmt.Errorf("policy id %q does not exist: %w", id.String(), ErrPolicyNotFound)
+		return nil, fmt.Errorf("[ERR-564] policy id %q does not exist: %w", id.String(), ErrPolicyNotFound)
 	}
 
 	f, err := idx.fsys.Open(fileName)
@@ -211,7 +211,7 @@ func (idx *index) AddOrUpdate(entry Entry) (evt storage.Event, err error) {
 
 	// Is this is a duplicate of another file?
 	if otherFile, ok := idx.modIDToFile[modID]; ok && otherFile != entry.File {
-		return evt, fmt.Errorf("policy is already defined in %s: %w", otherFile, ErrDuplicatePolicy)
+		return evt, fmt.Errorf("[ERR-565] policy is already defined in %s: %w", otherFile, ErrDuplicatePolicy)
 	}
 
 	// if this is an existing file, clear its state first
@@ -404,7 +404,7 @@ func (idx *index) LoadPolicy(_ context.Context, file ...string) ([]*policy.Wrapp
 	for i, f := range file {
 		p, err := idx.loadPolicy(idx.fileToModID[f])
 		if err != nil {
-			return nil, fmt.Errorf("failed to load policy file with file path %s: %w", f, err)
+			return nil, fmt.Errorf("[ERR-566] failed to load policy file with file path %s: %w", f, err)
 		}
 
 		pw := policy.Wrap(p)
@@ -420,11 +420,11 @@ func (idx *index) RepoStats(_ context.Context) storage.RepoStats {
 
 func (idx *index) Reload(ctx context.Context) ([]storage.Event, error) {
 	log := ctxzap.Extract(ctx)
-	log.Info("Start index reload")
+	log.Info("[ERR-567] Start index reload")
 	_, err, _ := idx.sfGroup.Do("reload", func() (any, error) {
 		idxIface, err := build(ctx, idx.fsys, idx.buildOpts)
 		if err != nil {
-			log.Error("Failed to build index while re-indexing")
+			log.Error("[ERR-568] Failed to build index while re-indexing")
 			return nil, err
 		}
 
@@ -446,10 +446,10 @@ func (idx *index) Reload(ctx context.Context) ([]storage.Event, error) {
 		return nil, nil
 	})
 	if err != nil {
-		log.Warn("Index reload failed", zap.Error(err))
+		log.Warn("[ERR-569] Index reload failed", zap.Error(err))
 		return nil, err
 	}
-	log.Info("Index reload successful")
+	log.Info("[ERR-570] Index reload successful")
 
 	return []storage.Event{storage.NewReloadEvent()}, nil
 }

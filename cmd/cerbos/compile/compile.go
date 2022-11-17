@@ -83,7 +83,7 @@ func (c *Cmd) Run(k *kong.Kong) error {
 			return lint.Display(p, idxErr, c.Output, colorLevel)
 		}
 
-		return fmt.Errorf("failed to open directory %s: %w", c.Dir, err)
+		return fmt.Errorf("[ERR-97] failed to open directory %s: %w", c.Dir, err)
 	}
 
 	store := disk.NewFromIndexWithConf(idx, &disk.Conf{})
@@ -100,7 +100,7 @@ func (c *Cmd) Run(k *kong.Kong) error {
 			return internalcompile.Display(p, *compErr, c.Output, colorLevel)
 		}
 
-		return fmt.Errorf("failed to create engine: %w", err)
+		return fmt.Errorf("[ERR-98] failed to create engine: %w", err)
 	}
 
 	if !c.SkipTests {
@@ -112,17 +112,17 @@ func (c *Cmd) Run(k *kong.Kong) error {
 		compiler := compile.NewManagerFromDefaultConf(ctx, store, schemaMgr)
 		eng, err := engine.NewEphemeral(compiler, schemaMgr)
 		if err != nil {
-			return fmt.Errorf("failed to create engine: %w", err)
+			return fmt.Errorf("[ERR-99] failed to create engine: %w", err)
 		}
 
 		results, err := verify.Verify(ctx, c.testsDir(), eng, verifyConf)
 		if err != nil {
-			return fmt.Errorf("failed to run tests: %w", err)
+			return fmt.Errorf("[ERR-100] failed to run tests: %w", err)
 		}
 
 		err = verification.Display(p, results, c.Output, c.Verbose, colorLevel)
 		if err != nil {
-			return fmt.Errorf("failed to display test results: %w", err)
+			return fmt.Errorf("[ERR-101] failed to display test results: %w", err)
 		}
 
 		switch results.Summary.OverallResult {

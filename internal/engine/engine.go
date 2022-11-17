@@ -30,7 +30,7 @@ import (
 	"github.com/cerbos/cerbos/internal/schema"
 )
 
-var errNoPoliciesMatched = errors.New("no matching policies")
+var errNoPoliciesMatched = errors.New("[ERR-296] no matching policies")
 
 const (
 	defaultEffect        = effectv1.Effect_EFFECT_DENY
@@ -103,7 +103,7 @@ type Components struct {
 func New(ctx context.Context, components Components) (*Engine, error) {
 	conf, err := GetConf()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read engine configuration: %w", err)
+		return nil, fmt.Errorf("[ERR-297] failed to read engine configuration: %w", err)
 	}
 
 	return NewFromConf(ctx, conf, components), nil
@@ -128,7 +128,7 @@ func NewFromConf(ctx context.Context, conf *Conf, components Components) *Engine
 func NewEphemeral(policyLoader PolicyLoader, schemaMgr schema.Manager) (*Engine, error) {
 	conf, err := GetConf()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read engine configuration: %w", err)
+		return nil, fmt.Errorf("[ERR-298] failed to read engine configuration: %w", err)
 	}
 
 	return newEngine(conf, Components{PolicyLoader: policyLoader, SchemaMgr: schemaMgr, AuditLog: audit.NewNopLog()}), nil
@@ -317,7 +317,7 @@ func (engine *Engine) doPlanResources(ctx context.Context, input *enginev1.PlanR
 	ppName, ppVersion, ppScope := engine.policyAttr(input.Principal.Id, input.Principal.PolicyVersion, input.Principal.Scope)
 	policySet, err := engine.getPrincipalPolicySet(ctx, ppName, ppVersion, ppScope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get check for [%s.%s]: %w", ppName, ppVersion, err)
+		return nil, fmt.Errorf("[ERR-299] failed to get check for [%s.%s]: %w", ppName, ppVersion, err)
 	}
 
 	result := new(planner.PolicyPlanResult)
@@ -334,7 +334,7 @@ func (engine *Engine) doPlanResources(ctx context.Context, input *enginev1.PlanR
 	rpName, rpVersion, rpScope := engine.policyAttr(input.Resource.Kind, input.Resource.PolicyVersion, input.Resource.Scope)
 	policySet, err = engine.getResourcePolicySet(ctx, rpName, rpVersion, rpScope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get check for [%s.%s]: %w", rpName, rpVersion, err)
+		return nil, fmt.Errorf("[ERR-300] failed to get check for [%s.%s]: %w", rpName, rpVersion, err)
 	}
 
 	if policy := policySet.GetResourcePolicy(); policy != nil {
@@ -439,7 +439,7 @@ func (engine *Engine) evaluate(ctx context.Context, input *enginev1.CheckInput, 
 
 		logging.FromContext(ctx).Error("Failed to evaluate policies", zap.Error(err))
 
-		return nil, fmt.Errorf("failed to evaluate policies: %w", err)
+		return nil, fmt.Errorf("[ERR-301] failed to evaluate policies: %w", err)
 	}
 
 	// update the output
@@ -470,7 +470,7 @@ func (engine *Engine) buildEvaluationCtx(ctx context.Context, eparams evalParams
 	ppName, ppVersion, ppScope := engine.policyAttr(input.Principal.Id, input.Principal.PolicyVersion, input.Principal.Scope)
 	ppCheck, err := engine.getPrincipalPolicyEvaluator(ctx, eparams, ppName, ppVersion, ppScope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get check for [%s.%s]: %w", ppName, ppVersion, err)
+		return nil, fmt.Errorf("[ERR-302] failed to get check for [%s.%s]: %w", ppName, ppVersion, err)
 	}
 	ec.addCheck(ppCheck)
 
@@ -478,7 +478,7 @@ func (engine *Engine) buildEvaluationCtx(ctx context.Context, eparams evalParams
 	rpName, rpVersion, rpScope := engine.policyAttr(input.Resource.Kind, input.Resource.PolicyVersion, input.Resource.Scope)
 	rpCheck, err := engine.getResourcePolicyEvaluator(ctx, eparams, rpName, rpVersion, rpScope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get check for [%s.%s]: %w", rpName, rpVersion, err)
+		return nil, fmt.Errorf("[ERR-303] failed to get check for [%s.%s]: %w", rpName, rpVersion, err)
 	}
 	ec.addCheck(rpCheck)
 
@@ -585,7 +585,7 @@ func (ec *evaluationCtx) evaluate(ctx context.Context, tctx tracer.Context, inpu
 			logging.FromContext(ctx).Error("Failed to evaluate policy", zap.Error(err))
 			tracing.MarkFailed(span, http.StatusInternalServerError, err)
 
-			return nil, fmt.Errorf("failed to execute policy: %w", err)
+			return nil, fmt.Errorf("[ERR-304] failed to execute policy: %w", err)
 		}
 
 		incomplete := resp.merge(result)

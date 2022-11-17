@@ -181,7 +181,7 @@ func mkConn(address string, opts ...Opt) (*grpc.ClientConn, *config, error) {
 
 	grpcConn, err := grpc.Dial(conf.address, dialOpts...)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to dial gRPC: %w", err)
+		return nil, nil, fmt.Errorf("[ERR-15] failed to dial gRPC: %w", err)
 	}
 
 	return grpcConn, conf, nil
@@ -216,7 +216,7 @@ func mkDialOpts(conf *config) ([]grpc.DialOption, error) {
 	} else {
 		tlsConf, err := mkTLSConfig(conf)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create TLS config: %w", err)
+			return nil, fmt.Errorf("[ERR-16] failed to create TLS config: %w", err)
 		}
 
 		dialOpts = append(dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConf)))
@@ -242,13 +242,13 @@ func mkTLSConfig(conf *config) (*tls.Config, error) {
 	if conf.tlsCACert != "" {
 		bs, err := os.ReadFile(conf.tlsCACert)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load CA certificate from %s: %w", conf.tlsCACert, err)
+			return nil, fmt.Errorf("[ERR-17] failed to load CA certificate from %s: %w", conf.tlsCACert, err)
 		}
 
 		certPool := x509.NewCertPool()
 		ok := certPool.AppendCertsFromPEM(bs)
 		if !ok {
-			return nil, errors.New("failed to append CA certificates to the pool")
+			return nil, errors.New("[ERR-18] failed to append CA certificates to the pool")
 		}
 
 		tlsConf.RootCAs = certPool
@@ -257,7 +257,7 @@ func mkTLSConfig(conf *config) (*tls.Config, error) {
 	if conf.tlsClientCert != "" && conf.tlsClientKey != "" {
 		certificate, err := tls.LoadX509KeyPair(conf.tlsClientCert, conf.tlsClientKey)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load client certificate and key from [%s, %s]: %w", conf.tlsClientCert, conf.tlsClientKey, err)
+			return nil, fmt.Errorf("[ERR-19] failed to load client certificate and key from [%s, %s]: %w", conf.tlsClientCert, conf.tlsClientKey, err)
 		}
 		tlsConf.Certificates = []tls.Certificate{certificate}
 	}
@@ -272,7 +272,7 @@ type grpcClient struct {
 
 func (gc *grpcClient) PlanResources(ctx context.Context, principal *Principal, resource *Resource, action string) (*PlanResourcesResponse, error) {
 	if err := isValid(principal); err != nil {
-		return nil, fmt.Errorf("invalid principal: %w", err)
+		return nil, fmt.Errorf("[ERR-20] invalid principal: %w", err)
 	}
 
 	// ResourceQueryPlan.Resource object doesn't have an ID field, since it doesn't describe a concrete instance,
@@ -283,12 +283,12 @@ func (gc *grpcClient) PlanResources(ctx context.Context, principal *Principal, r
 	}
 
 	if err := isValid(resource); err != nil {
-		return nil, fmt.Errorf("invalid resource: %w", err)
+		return nil, fmt.Errorf("[ERR-21] invalid resource: %w", err)
 	}
 
 	reqID, err := uuid.NewRandom()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate request ID: %w", err)
+		return nil, fmt.Errorf("[ERR-22] failed to generate request ID: %w", err)
 	}
 
 	req := &requestv1.PlanResourcesRequest{
@@ -309,7 +309,7 @@ func (gc *grpcClient) PlanResources(ctx context.Context, principal *Principal, r
 
 	result, err := gc.stub.PlanResources(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("[ERR-23] request failed: %w", err)
 	}
 
 	return &PlanResourcesResponse{PlanResourcesResponse: result}, nil
@@ -317,20 +317,20 @@ func (gc *grpcClient) PlanResources(ctx context.Context, principal *Principal, r
 
 func (gc *grpcClient) CheckResourceSet(ctx context.Context, principal *Principal, resourceSet *ResourceSet, actions ...string) (*CheckResourceSetResponse, error) {
 	if len(actions) == 0 {
-		return nil, fmt.Errorf("at least one action must be specified")
+		return nil, fmt.Errorf("[ERR-24] at least one action must be specified")
 	}
 
 	if err := isValid(principal); err != nil {
-		return nil, fmt.Errorf("invalid principal: %w", err)
+		return nil, fmt.Errorf("[ERR-25] invalid principal: %w", err)
 	}
 
 	if err := isValid(resourceSet); err != nil {
-		return nil, fmt.Errorf("invalid resource set; %w", err)
+		return nil, fmt.Errorf("[ERR-26] invalid resource set; %w", err)
 	}
 
 	reqID, err := uuid.NewRandom()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate request ID: %w", err)
+		return nil, fmt.Errorf("[ERR-27] failed to generate request ID: %w", err)
 	}
 
 	req := &requestv1.CheckResourceSetRequest{
@@ -346,7 +346,7 @@ func (gc *grpcClient) CheckResourceSet(ctx context.Context, principal *Principal
 
 	result, err := gc.stub.CheckResourceSet(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("[ERR-28] request failed: %w", err)
 	}
 
 	return &CheckResourceSetResponse{CheckResourceSetResponse: result}, nil
@@ -354,16 +354,16 @@ func (gc *grpcClient) CheckResourceSet(ctx context.Context, principal *Principal
 
 func (gc *grpcClient) CheckResourceBatch(ctx context.Context, principal *Principal, resourceBatch *ResourceBatch) (*CheckResourceBatchResponse, error) {
 	if err := isValid(principal); err != nil {
-		return nil, fmt.Errorf("invalid principal: %w", err)
+		return nil, fmt.Errorf("[ERR-29] invalid principal: %w", err)
 	}
 
 	if err := isValid(resourceBatch); err != nil {
-		return nil, fmt.Errorf("invalid resource batch; %w", err)
+		return nil, fmt.Errorf("[ERR-30] invalid resource batch; %w", err)
 	}
 
 	reqID, err := uuid.NewRandom()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate request ID: %w", err)
+		return nil, fmt.Errorf("[ERR-31] failed to generate request ID: %w", err)
 	}
 
 	req := &requestv1.CheckResourceBatchRequest{
@@ -378,7 +378,7 @@ func (gc *grpcClient) CheckResourceBatch(ctx context.Context, principal *Princip
 
 	result, err := gc.stub.CheckResourceBatch(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("[ERR-32] request failed: %w", err)
 	}
 
 	return &CheckResourceBatchResponse{CheckResourceBatchResponse: result}, nil
@@ -386,16 +386,16 @@ func (gc *grpcClient) CheckResourceBatch(ctx context.Context, principal *Princip
 
 func (gc *grpcClient) CheckResources(ctx context.Context, principal *Principal, resourceBatch *ResourceBatch) (*CheckResourcesResponse, error) {
 	if err := isValid(principal); err != nil {
-		return nil, fmt.Errorf("invalid principal: %w", err)
+		return nil, fmt.Errorf("[ERR-33] invalid principal: %w", err)
 	}
 
 	if err := isValid(resourceBatch); err != nil {
-		return nil, fmt.Errorf("invalid resource batch; %w", err)
+		return nil, fmt.Errorf("[ERR-34] invalid resource batch; %w", err)
 	}
 
 	reqID, err := uuid.NewRandom()
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate request ID: %w", err)
+		return nil, fmt.Errorf("[ERR-35] failed to generate request ID: %w", err)
 	}
 
 	req := &requestv1.CheckResourcesRequest{
@@ -410,7 +410,7 @@ func (gc *grpcClient) CheckResources(ctx context.Context, principal *Principal, 
 
 	result, err := gc.stub.CheckResources(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("[ERR-36] request failed: %w", err)
 	}
 
 	return &CheckResourcesResponse{CheckResourcesResponse: result}, nil
@@ -418,16 +418,16 @@ func (gc *grpcClient) CheckResources(ctx context.Context, principal *Principal, 
 
 func (gc *grpcClient) IsAllowed(ctx context.Context, principal *Principal, resource *Resource, action string) (bool, error) {
 	if err := isValid(principal); err != nil {
-		return false, fmt.Errorf("invalid principal: %w", err)
+		return false, fmt.Errorf("[ERR-37] invalid principal: %w", err)
 	}
 
 	if err := isValid(resource); err != nil {
-		return false, fmt.Errorf("invalid resource: %w", err)
+		return false, fmt.Errorf("[ERR-38] invalid resource: %w", err)
 	}
 
 	reqID, err := uuid.NewRandom()
 	if err != nil {
-		return false, fmt.Errorf("failed to generate request ID: %w", err)
+		return false, fmt.Errorf("[ERR-39] failed to generate request ID: %w", err)
 	}
 
 	req := &requestv1.CheckResourcesRequest{
@@ -444,11 +444,11 @@ func (gc *grpcClient) IsAllowed(ctx context.Context, principal *Principal, resou
 
 	result, err := gc.stub.CheckResources(ctx, req)
 	if err != nil {
-		return false, fmt.Errorf("request failed: %w", err)
+		return false, fmt.Errorf("[ERR-40] request failed: %w", err)
 	}
 
 	if len(result.Results) == 0 {
-		return false, fmt.Errorf("unexpected response from server")
+		return false, fmt.Errorf("[ERR-41] unexpected response from server")
 	}
 
 	return result.Results[0].Actions[action] == effectv1.Effect_EFFECT_ALLOW, nil

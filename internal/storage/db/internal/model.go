@@ -81,12 +81,12 @@ func (pdw *PolicyDefWrapper) Scan(src any) error {
 	case []byte:
 		source = t
 	default:
-		return fmt.Errorf("unexpected type for policy definition: %T", src)
+		return fmt.Errorf("[ERR-479] unexpected type for policy definition: %T", src)
 	}
 
 	pdw.Policy = &policyv1.Policy{}
 	if err := pdw.Policy.UnmarshalVT(source); err != nil {
-		return fmt.Errorf("failed to unmarshal policy definition: %w", err)
+		return fmt.Errorf("[ERR-480] failed to unmarshal policy definition: %w", err)
 	}
 
 	return nil

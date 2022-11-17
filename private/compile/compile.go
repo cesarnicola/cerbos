@@ -51,7 +51,7 @@ func Files(ctx context.Context, fsys fs.FS) (<-chan Artefact, error) {
 			}
 		}
 
-		return nil, fmt.Errorf("failed to build index: %w", err)
+		return nil, fmt.Errorf("[ERR-636] failed to build index: %w", err)
 	}
 
 	outChan := make(chan Artefact, 1)
@@ -73,7 +73,7 @@ func Files(ctx context.Context, fsys fs.FS) (<-chan Artefact, error) {
 			artefact.PolicySet, artefact.Error = internalcompile.Compile(unit, schemaMgr)
 
 			if artefact.Error != nil {
-				log.Error("Compilation failed", zap.Error(artefact.Error))
+				log.Error("[ERR-637] Compilation failed", zap.Error(artefact.Error))
 				compErrs := new(internalcompile.ErrorList)
 				if errors.As(artefact.Error, &compErrs) {
 					artefact.Error = &Errors{

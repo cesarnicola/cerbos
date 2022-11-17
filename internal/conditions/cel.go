@@ -49,22 +49,22 @@ func init() {
 
 	StdEnv, err = initEnv(newCELEnvOptions())
 	if err != nil {
-		panic(fmt.Errorf("failed to initialize standard CEL environment: %w", err))
+		panic(fmt.Errorf("[ERR-281] failed to initialize standard CEL environment: %w", err))
 	}
 
 	StdPartialEnv, err = initEnv(newCELQueryPlanEnvOptions())
 	if err != nil {
-		panic(fmt.Errorf("failed to initialize CEL environment for partial evaluation: %w", err))
+		panic(fmt.Errorf("[ERR-282] failed to initialize CEL environment for partial evaluation: %w", err))
 	}
 
 	FalseExpr, err = compileConstant("false")
 	if err != nil {
-		panic(fmt.Errorf("failed to compile constant 'false': %w", err))
+		panic(fmt.Errorf("[ERR-283] failed to compile constant 'false': %w", err))
 	}
 
 	TrueExpr, err = compileConstant("true")
 	if err != nil {
-		panic(fmt.Errorf("failed to compile constant 'true': %w", err))
+		panic(fmt.Errorf("[ERR-284] failed to compile constant 'true': %w", err))
 	}
 }
 
@@ -81,12 +81,12 @@ func initEnv(options []cel.EnvOption) (*cel.Env, error) {
 func compileConstant(value string) (*exprpb.CheckedExpr, error) {
 	ast, iss := StdEnv.Compile(value)
 	if iss.Err() != nil {
-		return nil, fmt.Errorf("failed to compile constant %q: %w", value, iss.Err())
+		return nil, fmt.Errorf("[ERR-285] failed to compile constant %q: %w", value, iss.Err())
 	}
 
 	expr, err := cel.AstToCheckedExpr(ast)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert constant %q to checked expression: %w", value, err)
+		return nil, fmt.Errorf("[ERR-286] failed to convert constant %q to checked expression: %w", value, err)
 	}
 
 	return expr, nil

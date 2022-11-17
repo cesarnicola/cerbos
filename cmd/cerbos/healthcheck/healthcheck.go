@@ -86,12 +86,12 @@ func (c *Cmd) Run(k *kong.Kong) error {
 func (c *Cmd) buildCheck() (checker, error) {
 	if c.Config != "" {
 		if err := config.Load(c.Config, nil); err != nil {
-			return nil, fmt.Errorf("failed to load config file %q: %w", c.Config, err)
+			return nil, fmt.Errorf("[ERR-104] failed to load config file %q: %w", c.Config, err)
 		}
 
 		serverConf := &server.Conf{}
 		if err := config.GetSection(serverConf); err != nil {
-			return nil, fmt.Errorf("failed to read configuration: %w", err)
+			return nil, fmt.Errorf("[ERR-105] failed to read configuration: %w", err)
 		}
 
 		return c.doBuildCheckFromConf(serverConf)
@@ -116,7 +116,7 @@ func (c *Cmd) doBuildCheckFromConf(serverConf *server.Conf) (checker, error) {
 	case httpKind:
 		host, port, err := net.SplitHostPort(serverConf.HTTPListenAddr)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse httpListenAddr %q: %w", serverConf.HTTPListenAddr, err)
+			return nil, fmt.Errorf("[ERR-106] failed to parse httpListenAddr %q: %w", serverConf.HTTPListenAddr, err)
 		}
 
 		if host == "" {
@@ -127,7 +127,7 @@ func (c *Cmd) doBuildCheckFromConf(serverConf *server.Conf) (checker, error) {
 		return newHTTPCheck(hostPort, tlsConf), nil
 	}
 
-	return nil, fmt.Errorf("unknown check kind %q", c.Kind)
+	return nil, fmt.Errorf("[ERR-107] unknown check kind %q", c.Kind)
 }
 
 func (c *Cmd) doBuildCheckManual() (checker, error) {
@@ -158,7 +158,7 @@ func (c *Cmd) doBuildCheckManual() (checker, error) {
 		return newHTTPCheck(hostPort, tlsConf), nil
 	}
 
-	return nil, fmt.Errorf("unknown check kind %q", c.Kind)
+	return nil, fmt.Errorf("[ERR-108] unknown check kind %q", c.Kind)
 }
 
 func mkTLSConfig(tc *server.TLSConf, insecure bool) (*tls.Config, error) {
@@ -176,12 +176,12 @@ func mkTLSConfig(tc *server.TLSConf, insecure bool) (*tls.Config, error) {
 		certPool := x509.NewCertPool()
 		bs, err := os.ReadFile(cert)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load certificate from %q: %w", cert, err)
+			return nil, fmt.Errorf("[ERR-109] failed to load certificate from %q: %w", cert, err)
 		}
 
 		ok := certPool.AppendCertsFromPEM(bs)
 		if !ok {
-			return nil, errors.New("failed to append certificates to the pool")
+			return nil, errors.New("[ERR-110] failed to append certificates to the pool")
 		}
 
 		tlsConfig.RootCAs = certPool
@@ -205,13 +205,13 @@ func (gc grpcCheck) check(ctx context.Context, out io.Writer) error {
 
 	conn, err := grpc.DialContext(ctx, gc.addr, dialOpts...)
 	if err != nil {
-		return fmt.Errorf("failed to connect to gRPC service at %q: %w", gc.addr, err)
+		return fmt.Errorf("[ERR-111] failed to connect to gRPC service at %q: %w", gc.addr, err)
 	}
 
 	hc := healthpb.NewHealthClient(conn)
 	resp, err := hc.Check(ctx, &healthpb.HealthCheckRequest{Service: svcv1.CerbosService_ServiceDesc.ServiceName})
 	if err != nil {
-		return fmt.Errorf("failed to execute healthcheck RPC: %w", err)
+		return fmt.Errorf("[ERR-112] failed to execute healthcheck RPC: %w", err)
 	}
 
 	_, _ = fmt.Fprintln(out, resp.Status.String())
@@ -220,7 +220,7 @@ func (gc grpcCheck) check(ctx context.Context, out io.Writer) error {
 	case healthpb.HealthCheckResponse_SERVING, healthpb.HealthCheckResponse_UNKNOWN:
 		return nil
 	default:
-		return fmt.Errorf("service status is %q", resp.Status.String())
+		return fmt.Errorf("[ERR-113] service status is %q", resp.Status.String())
 	}
 }
 
@@ -252,12 +252,12 @@ func (hc httpCheck) check(ctx context.Context, out io.Writer) error {
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, hc.url, http.NoBody)
 	if err != nil {
-		return fmt.Errorf("failed to create request to %q: %w", hc.url, err)
+		return fmt.Errorf("[ERR-114] failed to create request to %q: %w", hc.url, err)
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("request to %q failed: %w", hc.url, err)
+		return fmt.Errorf("[ERR-115] request to %q failed: %w", hc.url, err)
 	}
 
 	defer func() {
@@ -268,7 +268,7 @@ func (hc httpCheck) check(ctx context.Context, out io.Writer) error {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("server returned status %s (%d)", resp.Status, resp.StatusCode)
+		return fmt.Errorf("[ERR-116] server returned status %s (%d)", resp.Status, resp.StatusCode)
 	}
 
 	_, _ = io.Copy(out, resp.Body)

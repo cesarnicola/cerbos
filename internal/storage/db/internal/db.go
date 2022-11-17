@@ -100,7 +100,7 @@ func (s *dbStorage) AddOrUpdateSchema(ctx context.Context, schemas ...*schemav1.
 					ExecContext(ctx)
 			}
 			if err != nil {
-				return fmt.Errorf("failed to upsert the schema with id %s: %w", sch.Id, err)
+				return fmt.Errorf("[ERR-462] failed to upsert the schema with id %s: %w", sch.Id, err)
 			}
 
 			events = append(events, storage.NewSchemaEvent(storage.EventAddOrUpdateSchema, sch.Id))
@@ -127,16 +127,16 @@ func (s *dbStorage) DeleteSchema(ctx context.Context, ids ...string) error {
 		Executor().
 		ExecContext(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to delete schema(s): %w", err)
+		return fmt.Errorf("[ERR-463] failed to delete schema(s): %w", err)
 	}
 
 	affected, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("failed to discover whether the schema(s) got deleted or not: %w", err)
+		return fmt.Errorf("[ERR-464] failed to discover whether the schema(s) got deleted or not: %w", err)
 	}
 
 	if affected == 0 {
-		return fmt.Errorf("failed to find the schema(s) for deletion")
+		return fmt.Errorf("[ERR-465] failed to find the schema(s) for deletion")
 	}
 
 	s.NotifySubscribers(events...)
@@ -154,7 +154,7 @@ func (s *dbStorage) LoadPolicy(ctx context.Context, policyKey ...string) ([]*pol
 	if err := s.db.From(PolicyTbl).
 		Where(goqu.C(PolicyTblIDCol).In(moduleIDs)).
 		ScanStructsContext(ctx, &recs); err != nil {
-		return nil, fmt.Errorf("failed to get policies: %w", err)
+		return nil, fmt.Errorf("[ERR-466] failed to get policies: %w", err)
 	}
 
 	policies := make([]*policy.Wrapper, len(recs))
@@ -174,7 +174,7 @@ func (s *dbStorage) LoadSchema(ctx context.Context, urlVar string) (io.ReadClose
 	}
 
 	if u.Scheme != "" && u.Scheme != schema.URLScheme {
-		return nil, fmt.Errorf("invalid url scheme %q", u.Scheme)
+		return nil, fmt.Errorf("[ERR-467] invalid url scheme %q", u.Scheme)
 	}
 
 	var sch Schema
@@ -182,16 +182,16 @@ func (s *dbStorage) LoadSchema(ctx context.Context, urlVar string) (io.ReadClose
 		Where(goqu.Ex{SchemaTblIDCol: strings.TrimPrefix(u.Path, "/")}).
 		ScanStructContext(ctx, &sch)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get schema: %w", err)
+		return nil, fmt.Errorf("[ERR-468] failed to get schema: %w", err)
 	}
 
 	if sch.Definition == nil {
-		return nil, fmt.Errorf("failed to find schema")
+		return nil, fmt.Errorf("[ERR-469] failed to find schema")
 	}
 
 	def, err := json.Marshal(sch.Definition)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal schema: %w", err)
+		return nil, fmt.Errorf("[ERR-470] failed to marshal schema: %w", err)
 	}
 
 	return io.NopCloser(bytes.NewReader(def)), nil
@@ -224,7 +224,7 @@ func (s *dbStorage) AddOrUpdate(ctx context.Context, policies ...policy.Wrapper)
 					Executor().ExecContext(ctx)
 			}
 			if err != nil {
-				return fmt.Errorf("failed to upsert %s: %w", p.FQN, err)
+				return fmt.Errorf("[ERR-471] failed to upsert %s: %w", p.FQN, err)
 			}
 
 			dependencies := p.Dependencies()
@@ -234,7 +234,7 @@ func (s *dbStorage) AddOrUpdate(ctx context.Context, policies ...policy.Wrapper)
 					Prepared(true).
 					Where(goqu.I(PolicyDepTblPolicyIDCol).Eq(p.ID)).
 					Executor().ExecContext(ctx); err != nil {
-					return fmt.Errorf("failed to delete dependencies of %s: %w", p.FQN, err)
+					return fmt.Errorf("[ERR-472] failed to delete dependencies of %s: %w", p.FQN, err)
 				}
 
 				// insert the new dependency records
@@ -247,7 +247,7 @@ func (s *dbStorage) AddOrUpdate(ctx context.Context, policies ...policy.Wrapper)
 					Prepared(true).
 					Rows(depRows...).
 					Executor().ExecContext(ctx); err != nil {
-					return fmt.Errorf("failed to insert dependencies of %s: %w", p.FQN, err)
+					return fmt.Errorf("[ERR-473] failed to insert dependencies of %s: %w", p.FQN, err)
 				}
 			}
 
@@ -258,7 +258,7 @@ func (s *dbStorage) AddOrUpdate(ctx context.Context, policies ...policy.Wrapper)
 					Prepared(true).
 					Where(goqu.I(PolicyAncestorTblPolicyIDCol).Eq(p.ID)).
 					Executor().ExecContext(ctx); err != nil {
-					return fmt.Errorf("failed to delete ancestors of %s: %w", p.FQN, err)
+					return fmt.Errorf("[ERR-474] failed to delete ancestors of %s: %w", p.FQN, err)
 				}
 
 				// insert the new ancestry records
@@ -271,7 +271,7 @@ func (s *dbStorage) AddOrUpdate(ctx context.Context, policies ...policy.Wrapper)
 					Prepared(true).
 					Rows(ancRows...).
 					Executor().ExecContext(ctx); err != nil {
-					return fmt.Errorf("failed to insert ancestors of %s: %w", p.FQN, err)
+					return fmt.Errorf("[ERR-475] failed to insert ancestors of %s: %w", p.FQN, err)
 				}
 			}
 
@@ -515,7 +515,7 @@ func (s *dbStorage) ListPolicyIDs(ctx context.Context) ([]string, error) {
 		Executor().
 		ScanStructsContext(ctx, &policyCoords)
 	if err != nil {
-		return nil, fmt.Errorf("could not execute %q query: %w", "ListPolicyIDs", err)
+		return nil, fmt.Errorf("[ERR-476] could not execute %q query: %w", "ListPolicyIDs", err)
 	}
 
 	policyIDs := make([]string, len(policyCoords))
@@ -529,7 +529,7 @@ func (s *dbStorage) ListPolicyIDs(ctx context.Context) ([]string, error) {
 func (s *dbStorage) ListSchemaIDs(ctx context.Context) ([]string, error) {
 	res, err := s.db.Select(goqu.C(SchemaTblIDCol)).From(SchemaTbl).Executor().ScannerContext(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not execute %q query: %w", "ListSchemaIDs", err)
+		return nil, fmt.Errorf("[ERR-477] could not execute %q query: %w", "ListSchemaIDs", err)
 	}
 	defer res.Close()
 
@@ -537,7 +537,7 @@ func (s *dbStorage) ListSchemaIDs(ctx context.Context) ([]string, error) {
 	for res.Next() {
 		var id string
 		if err := res.ScanVal(&id); err != nil {
-			return nil, fmt.Errorf("could not scan row: %w", err)
+			return nil, fmt.Errorf("[ERR-478] could not scan row: %w", err)
 		}
 
 		schemaIds = append(schemaIds, id)

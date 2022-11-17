@@ -53,12 +53,12 @@ func (c *Conf) UnmarshalYAML(unmarshal func(any) error) error {
 
 	var confMap map[string]any
 	if err := unmarshal(&confMap); err != nil {
-		return fmt.Errorf("failed to unmarshal audit config: %w", err)
+		return fmt.Errorf("[ERR-225] failed to unmarshal audit config: %w", err)
 	}
 
 	yamlBytes, err := yaml.Marshal(confMap)
 	if err != nil {
-		return fmt.Errorf("failed to marshal audit config [%v]: %w", confMap, err)
+		return fmt.Errorf("[ERR-226] failed to marshal audit config [%v]: %w", confMap, err)
 	}
 
 	c.confHolder = confHolder{AccessLogsEnabled: true, DecisionLogsEnabled: true}

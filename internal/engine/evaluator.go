@@ -25,7 +25,7 @@ import (
 	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 )
 
-var ErrPolicyNotExecutable = errors.New("policy not executable")
+var ErrPolicyNotExecutable = errors.New("[ERR-305] policy not executable")
 
 type evalParams struct {
 	nowFunc func() time.Time
@@ -78,7 +78,7 @@ func (rpe *resourcePolicyEvaluator) Evaluate(ctx context.Context, tctx tracer.Co
 	if err != nil {
 		pctx.Failed(err, "Error during validation")
 
-		return nil, fmt.Errorf("failed to validate input: %w", err)
+		return nil, fmt.Errorf("[ERR-306] failed to validate input: %w", err)
 	}
 
 	if len(vr.Errors) > 0 {
@@ -113,7 +113,7 @@ func (rpe *resourcePolicyEvaluator) Evaluate(ctx context.Context, tctx tracer.Co
 		variables, err := rpe.evalParams.evaluateVariables(sctx.StartVariables(), p.Variables, input)
 		if err != nil {
 			sctx.Failed(err, "Failed to evaluate variables")
-			return nil, fmt.Errorf("failed to evaluate variables: %w", err)
+			return nil, fmt.Errorf("[ERR-307] failed to evaluate variables: %w", err)
 		}
 
 		// calculate the set of effective derived roles
@@ -210,7 +210,7 @@ func (ppe *principalPolicyEvaluator) Evaluate(ctx context.Context, tctx tracer.C
 		variables, err := ppe.evalParams.evaluateVariables(sctx.StartVariables(), p.Variables, input)
 		if err != nil {
 			sctx.Failed(err, "Failed to evaluate variables")
-			return nil, fmt.Errorf("failed to evaluate variables: %w", err)
+			return nil, fmt.Errorf("[ERR-308] failed to evaluate variables: %w", err)
 		}
 
 		for resource, resourceRules := range p.ResourceRules {
@@ -253,7 +253,7 @@ func (ep evalParams) evaluateVariables(tctx tracer.Context, variables map[string
 		val, err := ep.evaluateCELExpr(varExpr.Checked, evalVars, input)
 		if err != nil {
 			vctx.Skipped(err, "Failed to evaluate expression")
-			errs = multierr.Append(errs, fmt.Errorf("error evaluating `%s := %s`: %w", varName, varExpr.Original, err))
+			errs = multierr.Append(errs, fmt.Errorf("[ERR-309] error evaluating `%s := %s`: %w", varName, varExpr.Original, err))
 			continue
 		}
 
@@ -276,7 +276,7 @@ func (ep evalParams) satisfiesCondition(tctx tracer.Context, cond *runtimev1.Con
 		val, err := ep.evaluateBoolCELExpr(t.Expr.Checked, variables, input)
 		if err != nil {
 			ectx.ComputedBoolResult(false, err, "Failed to evaluate expression")
-			return false, fmt.Errorf("failed to evaluate `%s`: %w", t.Expr.Original, err)
+			return false, fmt.Errorf("[ERR-310] failed to evaluate `%s`: %w", t.Expr.Original, err)
 		}
 
 		ectx.ComputedBoolResult(val, nil, "")
@@ -337,7 +337,7 @@ func (ep evalParams) satisfiesCondition(tctx tracer.Context, cond *runtimev1.Con
 		return true, nil
 
 	default:
-		err := fmt.Errorf("unknown op type %T", t)
+		err := fmt.Errorf("[ERR-311] unknown op type %T", t)
 		tctx.ComputedBoolResult(false, err, "Unknown op type")
 		return false, err
 	}

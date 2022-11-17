@@ -28,7 +28,7 @@ func init() {
 	storage.RegisterDriver(DriverName, func(ctx context.Context, confW *config.Wrapper) (storage.Store, error) {
 		conf := new(Conf)
 		if err := confW.GetSection(conf); err != nil {
-			return nil, fmt.Errorf("failed to read disk configuration: %w", err)
+			return nil, fmt.Errorf("[ERR-513] failed to read disk configuration: %w", err)
 		}
 
 		return NewStore(ctx, conf)
@@ -44,7 +44,7 @@ type Store struct {
 func NewStore(ctx context.Context, conf *Conf) (*Store, error) {
 	dir, err := filepath.Abs(conf.Directory)
 	if err != nil {
-		return nil, fmt.Errorf("failed to determine absolute path of directory [%s]: %w", conf.Directory, err)
+		return nil, fmt.Errorf("[ERR-514] failed to determine absolute path of directory [%s]: %w", conf.Directory, err)
 	}
 
 	idx, err := index.Build(ctx, os.DirFS(dir))
@@ -114,7 +114,7 @@ func (s *Store) RepoStats(ctx context.Context) storage.RepoStats {
 func (s *Store) Reload(ctx context.Context) error {
 	evts, err := s.idx.Reload(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to reload the index: %w", err)
+		return fmt.Errorf("[ERR-515] failed to reload the index: %w", err)
 	}
 	s.NotifySubscribers(evts...)
 

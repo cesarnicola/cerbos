@@ -50,7 +50,7 @@ func Cmd(ctx Ctx, name string, args ...string) error {
 		}
 
 		dumpOutput(ctx, done)
-		return fmt.Errorf("failed to run %q: exit=%d err=%v", done.Cmd, done.Exit, done.Error)
+		return fmt.Errorf("[ERR-612] failed to run %q: exit=%d err=%v", done.Cmd, done.Exit, done.Error)
 
 	case <-timeout.Done():
 		_ = c.Stop()
@@ -87,7 +87,7 @@ func checkCerbosIsUp(ctx Ctx) func() error {
 			return err
 		}
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("received status %q", resp.Status)
+			return fmt.Errorf("[ERR-613] received status %q", resp.Status)
 		}
 
 		return nil

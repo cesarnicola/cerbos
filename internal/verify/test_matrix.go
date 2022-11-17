@@ -45,7 +45,7 @@ func buildTestMatrix(table *policyv1.TestTable) ([]testMatrixElement, error) {
 	}
 
 	for key := range expectationLookup {
-		return nil, fmt.Errorf("found an expectation for principal %q and resource %q, but at least one of these is not present in input", key.Principal, key.Resource)
+		return nil, fmt.Errorf("[ERR-632] found an expectation for principal %q and resource %q, but at least one of these is not present in input", key.Principal, key.Resource)
 	}
 
 	return matrix, nil
@@ -58,7 +58,7 @@ func buildExpectationLookup(table *policyv1.TestTable) (map[testMatrixKey]testMa
 		key := testMatrixKey{Principal: expectation.Principal, Resource: expectation.Resource}
 
 		if _, ok := lookup[key]; ok {
-			return nil, fmt.Errorf("found multiple expectations for principal %q and resource %q", key.Principal, key.Resource)
+			return nil, fmt.Errorf("[ERR-633] found multiple expectations for principal %q and resource %q", key.Principal, key.Resource)
 		}
 
 		lookup[key] = expectation.Actions

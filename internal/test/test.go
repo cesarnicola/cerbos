@@ -127,7 +127,7 @@ func PathToDir(tb testing.TB, dir string) string {
 func DataFS() fs.FS {
 	_, currFile, _, ok := runtime.Caller(0)
 	if !ok {
-		panic(fmt.Errorf("failed to determine current dir"))
+		panic(fmt.Errorf("[ERR-616] failed to determine current dir"))
 	}
 
 	return os.DirFS(filepath.Join(filepath.Dir(currFile), "testdata"))

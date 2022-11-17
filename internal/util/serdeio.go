@@ -26,7 +26,7 @@ var (
 	jsonStart           = []byte("{")
 	yamlSep             = []byte("---")
 	yamlComment         = []byte("#")
-	ErrMultipleYAMLDocs = errors.New("more than one YAML document detected")
+	ErrMultipleYAMLDocs = errors.New("[ERR-619] more than one YAML document detected")
 )
 
 func ReadJSONOrYAML(src io.Reader, dest proto.Message) error {
@@ -64,7 +64,7 @@ func newJSONDecoder(src *bufio.Reader) decoderFunc {
 		}
 
 		if err := protojson.Unmarshal(jsonBytes, dest); err != nil {
-			return fmt.Errorf("failed to unmarshal JSON: %w", err)
+			return fmt.Errorf("[ERR-620] failed to unmarshal JSON: %w", err)
 		}
 		return nil
 	}
@@ -100,22 +100,22 @@ func newYAMLDecoder(src *bufio.Reader) decoderFunc {
 			}
 
 			if _, err := buf.Write(line); err != nil {
-				return fmt.Errorf("failed to buffer YAML data: %w", err)
+				return fmt.Errorf("[ERR-621] failed to buffer YAML data: %w", err)
 			}
 			_ = buf.WriteByte(newline)
 		}
 
 		if err := s.Err(); err != nil {
-			return fmt.Errorf("failed to read from source: %w", err)
+			return fmt.Errorf("[ERR-622] failed to read from source: %w", err)
 		}
 
 		jsonBytes, err := yaml.YAMLToJSON(buf.Bytes())
 		if err != nil {
-			return fmt.Errorf("failed to convert YAML to JSON: %w", err)
+			return fmt.Errorf("[ERR-623] failed to convert YAML to JSON: %w", err)
 		}
 
 		if err := protojson.Unmarshal(jsonBytes, dest); err != nil {
-			return fmt.Errorf("failed to unmarshal JSON: %w", err)
+			return fmt.Errorf("[ERR-624] failed to unmarshal JSON: %w", err)
 		}
 		return nil
 	}
@@ -124,16 +124,16 @@ func newYAMLDecoder(src *bufio.Reader) decoderFunc {
 func WriteYAML(dest io.Writer, data proto.Message) error {
 	jsonBytes, err := protojson.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("failed to marshal data: %w", err)
+		return fmt.Errorf("[ERR-625] failed to marshal data: %w", err)
 	}
 
 	yamlBytes, err := yaml.JSONToYAML(jsonBytes)
 	if err != nil {
-		return fmt.Errorf("failed to convert data to YAML: %w", err)
+		return fmt.Errorf("[ERR-626] failed to convert data to YAML: %w", err)
 	}
 
 	if _, err := io.Copy(dest, bytes.NewReader(yamlBytes)); err != nil {
-		return fmt.Errorf("failed to write data: %w", err)
+		return fmt.Errorf("[ERR-627] failed to write data: %w", err)
 	}
 
 	return nil

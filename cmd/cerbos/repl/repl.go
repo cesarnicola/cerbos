@@ -47,7 +47,7 @@ func (c *Cmd) Run(k *kong.Kong) error {
 
 	r, err := internal.NewREPL(reader, internal.NewPrinterOutput(k.Stdout, k.Stderr))
 	if err != nil {
-		return fmt.Errorf("failed to initialize the REPL: %w", err)
+		return fmt.Errorf("[ERR-136] failed to initialize the REPL: %w", err)
 	}
 
 	return r.Loop()

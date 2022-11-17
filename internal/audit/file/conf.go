@@ -28,7 +28,7 @@ func (c *Conf) SetDefaults() {
 
 func (c *Conf) Validate() error {
 	if strings.TrimSpace(c.Path) == "" {
-		return fmt.Errorf("invalid path %q", c.Path)
+		return fmt.Errorf("[ERR-227] invalid path %q", c.Path)
 	}
 
 	return nil

@@ -25,7 +25,7 @@ func NewParser() (*participle.Parser[REPLDirective], error) {
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create lexer: %w", err)
+		return nil, fmt.Errorf("[ERR-118] failed to create lexer: %w", err)
 	}
 
 	parser, err := participle.Build[REPLDirective](
@@ -33,7 +33,7 @@ func NewParser() (*participle.Parser[REPLDirective], error) {
 		participle.Elide("Whitespace"),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create parser: %w", err)
+		return nil, fmt.Errorf("[ERR-119] failed to create parser: %w", err)
 	}
 
 	return parser, nil

@@ -150,7 +150,7 @@ func validate(mgr schema.Manager, tc *privatev1.SchemaTestCase) (*schema.Validat
 	case *privatev1.SchemaTestCase_PlanResourcesInput:
 		return mgr.ValidatePlanResourcesInput(context.Background(), tc.SchemaRefs, tc.GetPlanResourcesInput())
 	default:
-		panic(fmt.Errorf("unexpected test case input %T", tc.Input))
+		panic(fmt.Errorf("[ERR-380] unexpected test case input %T", tc.Input))
 	}
 }
 

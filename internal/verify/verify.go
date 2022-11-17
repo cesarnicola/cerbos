@@ -23,7 +23,7 @@ type Config struct {
 	Trace bool
 }
 
-var ErrTestFixtureNotFound = errors.New("test fixture not found")
+var ErrTestFixtureNotFound = errors.New("[ERR-634] test fixture not found")
 
 type Checker interface {
 	Check(ctx context.Context, inputs []*enginev1.CheckInput, opts ...engine.CheckOpt) ([]*enginev1.CheckOutput, error)
@@ -38,7 +38,7 @@ func Verify(ctx context.Context, fsys fs.FS, eng Checker, conf Config) (*policyv
 	} else {
 		runRegex, err := regexp.Compile(conf.Run)
 		if err != nil {
-			return nil, fmt.Errorf("invalid run specification: %w", err)
+			return nil, fmt.Errorf("[ERR-635] invalid run specification: %w", err)
 		}
 
 		shouldRun = func(name string) bool { return runRegex.MatchString(name) }

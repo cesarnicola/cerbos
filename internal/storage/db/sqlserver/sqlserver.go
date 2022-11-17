@@ -50,11 +50,11 @@ func init() {
 
 func NewStore(ctx context.Context, conf *Conf) (*Store, error) {
 	log := logging.FromContext(ctx).Named("sqlserver")
-	log.Info("Initialising SQL Server storage")
+	log.Info("[ERR-499] Initialising SQL Server storage")
 
 	db, err := sqlx.Connect(DriverName, conf.URL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("[ERR-500] failed to open database: %w", err)
 	}
 
 	conf.ConnPool.Configure(db)
@@ -84,14 +84,14 @@ BEGIN
 END
 `)
 	if err != nil {
-		return fmt.Errorf("failed to prepare policy upsert %s: %w", p.FQN, err)
+		return fmt.Errorf("[ERR-501] failed to prepare policy upsert %s: %w", p.FQN, err)
 	}
 
 	defer stm.Close()
 
 	definition, err := internal.PolicyDefWrapper{Policy: p.Policy}.Value()
 	if err != nil {
-		return fmt.Errorf("failed to get definition value: %w", err)
+		return fmt.Errorf("[ERR-502] failed to get definition value: %w", err)
 	}
 
 	id, _ := p.ID.Value()
@@ -118,14 +118,14 @@ BEGIN
 END
 `)
 	if err != nil {
-		return fmt.Errorf("failed to prepare schema upsert %s: %w", schema.ID, err)
+		return fmt.Errorf("[ERR-503] failed to prepare schema upsert %s: %w", schema.ID, err)
 	}
 
 	defer stm.Close()
 
 	definition, err := schema.Definition.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("failed to marshal defJson: %w", err)
+		return fmt.Errorf("[ERR-504] failed to marshal defJson: %w", err)
 	}
 	_, err = stm.ExecContext(ctx, sql.Named("definition", definition), sql.Named("id", schema.ID))
 
@@ -145,17 +145,17 @@ func CreateSchema(r io.Reader, db *sqlx.DB, f func() (*sqlx.DB, error)) error {
 			if c == nil {
 				c, err = f()
 				if err != nil {
-					return fmt.Errorf("failed to connect to \"cerbos\" database")
+					return fmt.Errorf("[ERR-505] failed to connect to \"cerbos\" database")
 				}
 			}
 			if _, err = c.Exec(query); err != nil {
-				return fmt.Errorf("failed to execute [%s]: %w", query, err)
+				return fmt.Errorf("[ERR-506] failed to execute [%s]: %w", query, err)
 			}
 			continue
 		}
 
 		if _, err := db.Exec(query); err != nil {
-			return fmt.Errorf("failed to execute [%s]: %w", query, err)
+			return fmt.Errorf("[ERR-507] failed to execute [%s]: %w", query, err)
 		}
 	}
 
@@ -185,7 +185,7 @@ func splitOnGo(data []byte, atEOF bool) (int, []byte, error) {
 func PathToDir() (string, error) {
 	_, currFile, _, ok := runtime.Caller(0)
 	if !ok {
-		return "", errors.New("failed to detect path")
+		return "", errors.New("[ERR-508] failed to detect path")
 	}
 
 	return filepath.Dir(currFile), nil

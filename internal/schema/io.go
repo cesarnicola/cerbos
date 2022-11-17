@@ -14,7 +14,7 @@ import (
 func ReadSchemaFromFile(fsys fs.FS, path string) (*schemav1.Schema, error) {
 	f, err := fsys.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open %s: %w", path, err)
+		return nil, fmt.Errorf("[ERR-371] failed to open %s: %w", path, err)
 	}
 
 	defer f.Close()
@@ -25,7 +25,7 @@ func ReadSchemaFromFile(fsys fs.FS, path string) (*schemav1.Schema, error) {
 func ReadSchema(src io.Reader, id string) (*schemav1.Schema, error) {
 	def, err := io.ReadAll(src)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read all bytes from reader: %w", err)
+		return nil, fmt.Errorf("[ERR-372] failed to read all bytes from reader: %w", err)
 	}
 
 	return &schemav1.Schema{

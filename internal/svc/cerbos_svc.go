@@ -53,7 +53,7 @@ func (cs *CerbosService) PlanResources(ctx context.Context, request *requestv1.P
 
 	auxData, err := cs.auxData.Extract(ctx, request.AuxData)
 	if err != nil {
-		log.Error("Failed to extract auxData", zap.Error(err))
+		log.Error("[ERR-578] Failed to extract auxData", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, "failed to extract auxData")
 	}
 
@@ -67,7 +67,7 @@ func (cs *CerbosService) PlanResources(ctx context.Context, request *requestv1.P
 	}
 	output, err := cs.eng.PlanResources(logging.ToContext(ctx, log), input)
 	if err != nil {
-		log.Error("Resources query plan request failed", zap.Error(err))
+		log.Error("[ERR-579] Resources query plan request failed", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "Resources query plan request failed")
 	}
 
@@ -95,18 +95,18 @@ func (cs *CerbosService) PlanResources(ctx context.Context, request *requestv1.P
 func (cs *CerbosService) CheckResourceSet(ctx context.Context, req *requestv1.CheckResourceSetRequest) (*responsev1.CheckResourceSetResponse, error) {
 	log := ctxzap.Extract(ctx)
 	if err := cs.checkNumResourcesLimit(len(req.Resource.Instances)); err != nil {
-		log.Error("Request too large", zap.Error(err))
+		log.Error("[ERR-580] Request too large", zap.Error(err))
 		return nil, err
 	}
 
 	if err := cs.checkNumActionsLimit(len(req.Actions)); err != nil {
-		log.Error("Request too large", zap.Error(err))
+		log.Error("[ERR-581] Request too large", zap.Error(err))
 		return nil, err
 	}
 
 	auxData, err := cs.auxData.Extract(ctx, req.AuxData)
 	if err != nil {
-		log.Error("Failed to extract auxData", zap.Error(err))
+		log.Error("[ERR-582] Failed to extract auxData", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, "failed to extract auxData")
 	}
 
@@ -134,7 +134,7 @@ func (cs *CerbosService) CheckResourceSet(ctx context.Context, req *requestv1.Ch
 
 	outputs, err := cs.eng.Check(logging.ToContext(ctx, log), inputs)
 	if err != nil {
-		log.Error("Policy check failed", zap.Error(err))
+		log.Error("[ERR-583] Policy check failed", zap.Error(err))
 		if errors.As(err, &compile.PolicyCompilationErr{}) {
 			return nil, status.Errorf(codes.FailedPrecondition, "Check failed due to invalid policy")
 		}
@@ -154,20 +154,20 @@ func (cs *CerbosService) CheckResourceSet(ctx context.Context, req *requestv1.Ch
 func (cs *CerbosService) CheckResourceBatch(ctx context.Context, req *requestv1.CheckResourceBatchRequest) (*responsev1.CheckResourceBatchResponse, error) {
 	log := ctxzap.Extract(ctx)
 	if err := cs.checkNumResourcesLimit(len(req.Resources)); err != nil {
-		log.Error("Request too large", zap.Error(err))
+		log.Error("[ERR-584] Request too large", zap.Error(err))
 		return nil, err
 	}
 
 	auxData, err := cs.auxData.Extract(ctx, req.AuxData)
 	if err != nil {
-		log.Error("Failed to extract auxData", zap.Error(err))
+		log.Error("[ERR-585] Failed to extract auxData", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, "failed to extract auxData")
 	}
 
 	inputs := make([]*enginev1.CheckInput, len(req.Resources))
 	for i, res := range req.Resources {
 		if err := cs.checkNumActionsLimit(len(res.Actions)); err != nil {
-			log.Error("Request too large", zap.Error(err))
+			log.Error("[ERR-586] Request too large", zap.Error(err))
 			return nil, err
 		}
 
@@ -182,7 +182,7 @@ func (cs *CerbosService) CheckResourceBatch(ctx context.Context, req *requestv1.
 
 	outputs, err := cs.eng.Check(logging.ToContext(ctx, log), inputs)
 	if err != nil {
-		log.Error("Policy check failed", zap.Error(err))
+		log.Error("[ERR-587] Policy check failed", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "Policy check failed")
 	}
 
@@ -211,20 +211,20 @@ func (cs *CerbosService) CheckResourceBatch(ctx context.Context, req *requestv1.
 func (cs *CerbosService) CheckResources(ctx context.Context, req *requestv1.CheckResourcesRequest) (*responsev1.CheckResourcesResponse, error) {
 	log := ctxzap.Extract(ctx)
 	if err := cs.checkNumResourcesLimit(len(req.Resources)); err != nil {
-		log.Error("Request too large", zap.Error(err))
+		log.Error("[ERR-588] Request too large", zap.Error(err))
 		return nil, err
 	}
 
 	auxData, err := cs.auxData.Extract(ctx, req.AuxData)
 	if err != nil {
-		log.Error("Failed to extract auxData", zap.Error(err))
+		log.Error("[ERR-589] Failed to extract auxData", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, "failed to extract auxData")
 	}
 
 	inputs := make([]*enginev1.CheckInput, len(req.Resources))
 	for i, res := range req.Resources {
 		if err := cs.checkNumActionsLimit(len(res.Actions)); err != nil {
-			log.Error("Request too large", zap.Error(err))
+			log.Error("[ERR-590] Request too large", zap.Error(err))
 			return nil, err
 		}
 
@@ -239,7 +239,7 @@ func (cs *CerbosService) CheckResources(ctx context.Context, req *requestv1.Chec
 
 	outputs, err := cs.eng.Check(logging.ToContext(ctx, log), inputs)
 	if err != nil {
-		log.Error("Policy check failed", zap.Error(err))
+		log.Error("[ERR-591] Policy check failed", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "Policy check failed")
 	}
 

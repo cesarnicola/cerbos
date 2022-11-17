@@ -15,15 +15,15 @@ import (
 )
 
 var (
-	errAmbiguousDerivedRole   = errors.New("ambiguous derived role")
-	errImportNotFound         = errors.New("import not found")
-	errInvalidCompilationUnit = errors.New("invalid compilation unit")
-	errInvalidResourceRule    = errors.New("invalid resource rule")
-	errInvalidSchema          = errors.New("invalid schema")
-	errMissingDefinition      = errors.New("missing policy definition")
-	errScriptsUnsupported     = errors.New("scripts in conditions are no longer supported")
-	errUnexpectedErr          = errors.New("unexpected error")
-	errUnknownDerivedRole     = errors.New("unknown derived role")
+	errAmbiguousDerivedRole   = errors.New("[ERR-266] ambiguous derived role")
+	errImportNotFound         = errors.New("[ERR-267] import not found")
+	errInvalidCompilationUnit = errors.New("[ERR-268] invalid compilation unit")
+	errInvalidResourceRule    = errors.New("[ERR-269] invalid resource rule")
+	errInvalidSchema          = errors.New("[ERR-270] invalid schema")
+	errMissingDefinition      = errors.New("[ERR-271] missing policy definition")
+	errScriptsUnsupported     = errors.New("[ERR-272] scripts in conditions are no longer supported")
+	errUnexpectedErr          = errors.New("[ERR-273] unexpected error")
+	errUnknownDerivedRole     = errors.New("[ERR-274] unknown derived role")
 )
 
 type ErrorList struct {

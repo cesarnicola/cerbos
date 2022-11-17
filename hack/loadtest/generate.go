@@ -68,7 +68,7 @@ func (c *cmd) Run() error {
 	for tmplDir, outDir := range tmplOutConf {
 		r, err := createRenderer(tmplDir, filepath.Join(c.Out, outDir))
 		if err != nil {
-			return fmt.Errorf("failed to create renderer for %q: %w", tmplDir, err)
+			return fmt.Errorf("[ERR-197] failed to create renderer for %q: %w", tmplDir, err)
 		}
 
 		renderers = append(renderers, r)
@@ -83,7 +83,7 @@ func (c *cmd) Run() error {
 
 		for _, r := range renderers {
 			if err := r(args); err != nil {
-				return fmt.Errorf("failed to render: %w", err)
+				return fmt.Errorf("[ERR-198] failed to render: %w", err)
 			}
 		}
 	}
@@ -95,7 +95,7 @@ func prepOutDirs(out string) error {
 	for _, outDir := range tmplOutConf {
 		path := filepath.Join(out, outDir)
 		if err := os.RemoveAll(path); err != nil {
-			return fmt.Errorf("failed to remove %q: %w", path, err)
+			return fmt.Errorf("[ERR-199] failed to remove %q: %w", path, err)
 		}
 	}
 
@@ -103,7 +103,7 @@ func prepOutDirs(out string) error {
 		path := filepath.Join(out, outDir)
 		//nolint:gomnd
 		if err := os.MkdirAll(path, 0o755); err != nil {
-			return fmt.Errorf("failed to create %q: %w", path, err)
+			return fmt.Errorf("[ERR-200] failed to create %q: %w", path, err)
 		}
 	}
 
@@ -113,12 +113,12 @@ func prepOutDirs(out string) error {
 func createRenderer(tmplDir, outDir string) (renderFunc, error) {
 	subFS, err := fs.Sub(fsys, filepath.Join(templatesDir, tmplDir))
 	if err != nil {
-		return nil, fmt.Errorf("unable to descend into %s: %w", tmplDir, err)
+		return nil, fmt.Errorf("[ERR-201] unable to descend into %s: %w", tmplDir, err)
 	}
 
 	tmpl, err := template.ParseFS(subFS, "*.tpl")
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse templates from %s: %w", tmplDir, err)
+		return nil, fmt.Errorf("[ERR-202] failed to parse templates from %s: %w", tmplDir, err)
 	}
 
 	return mkRenderFunc(outDir, tmpl), nil
@@ -139,7 +139,7 @@ func mkRenderFunc(out string, tmpl *template.Template) renderFunc {
 		for _, t := range templates {
 			fn := fmt.Sprintf(fileMap[t.Name()], args.N)
 			if err := renderFile(fn, t, args); err != nil {
-				return fmt.Errorf("failed to render %q:%w", fn, err)
+				return fmt.Errorf("[ERR-203] failed to render %q:%w", fn, err)
 			}
 		}
 
@@ -161,7 +161,7 @@ func renderFile(fileName string, tmpl *template.Template, args templateArgs) err
 func (c *cmd) buildReqIndex() error {
 	requests, err := fs.Glob(fsys, filepath.Join(templatesDir, requestsDir, "*.tpl"))
 	if err != nil {
-		return fmt.Errorf("failed to glob request templates: %w", err)
+		return fmt.Errorf("[ERR-204] failed to glob request templates: %w", err)
 	}
 
 	index := make(map[string][]string)
@@ -178,7 +178,7 @@ func (c *cmd) buildReqIndex() error {
 	idxFile := filepath.Join(c.Out, tmplOutConf[requestsDir], "index.json")
 	f, err := os.Create(idxFile)
 	if err != nil {
-		return fmt.Errorf("failed to create %q: %w", idxFile, err)
+		return fmt.Errorf("[ERR-205] failed to create %q: %w", idxFile, err)
 	}
 
 	defer f.Close()

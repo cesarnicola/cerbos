@@ -7,7 +7,7 @@ import "errors"
 
 var (
 	// ErrFailed is the error returned when compilation fails.
-	ErrFailed = errors.New("failed to compile")
+	ErrFailed = errors.New("[ERR-102] failed to compile")
 	// ErrTestsFailed is the error returned when tests fail.
-	ErrTestsFailed = errors.New("tests failed")
+	ErrTestsFailed = errors.New("[ERR-103] tests failed")
 )

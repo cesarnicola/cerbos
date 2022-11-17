@@ -87,7 +87,7 @@ type manager struct {
 func New(ctx context.Context, loader Loader) (Manager, error) {
 	conf, err := GetConf()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get config section %q: %w", confKey, err)
+		return nil, fmt.Errorf("[ERR-373] failed to get config section %q: %w", confKey, err)
 	}
 
 	return NewFromConf(ctx, loader, conf), nil
@@ -142,7 +142,7 @@ func (m *manager) validate(ctx context.Context, log *zap.Logger, schemas *policy
 	if err := m.validateAttr(ctx, ErrSourcePrincipal, schemas.PrincipalSchema, principalAttr, actions, nil); err != nil {
 		var principalErrs ValidationErrorList
 		if ok := errors.As(err, &principalErrs); !ok {
-			return result, fmt.Errorf("failed to validate the principal: %w", err)
+			return result, fmt.Errorf("[ERR-374] failed to validate the principal: %w", err)
 		}
 		result.add(principalErrs...)
 	}
@@ -150,13 +150,13 @@ func (m *manager) validate(ctx context.Context, log *zap.Logger, schemas *policy
 	if err := m.validateAttr(ctx, ErrSourceResource, schemas.ResourceSchema, resourceAttr, actions, resourceErrorFilter); err != nil {
 		var resourceErrs ValidationErrorList
 		if ok := errors.As(err, &resourceErrs); !ok {
-			return result, fmt.Errorf("failed to validate the resource: %w", err)
+			return result, fmt.Errorf("[ERR-375] failed to validate the resource: %w", err)
 		}
 		result.add(resourceErrs...)
 	}
 
 	if len(result.Errors) > 0 {
-		log.Warn("Validation failed", zap.Strings("errors", result.Errors.ErrorMessages()))
+		log.Warn("[ERR-376] Validation failed", zap.Strings("errors", result.Errors.ErrorMessages()))
 	}
 
 	return result, nil
@@ -195,7 +195,7 @@ func (m *manager) validateAttr(ctx context.Context, src ErrSource, schemaRef *po
 	if err := schema.Validate(attrJSON); err != nil {
 		var validationErr *jsonschema.ValidationError
 		if ok := errors.As(err, &validationErr); !ok {
-			return fmt.Errorf("unable to validate %s: %w", src, err)
+			return fmt.Errorf("[ERR-377] unable to validate %s: %w", src, err)
 		}
 
 		return newValidationErrorList(validationErr, src, errorFilter)
@@ -211,7 +211,7 @@ func attrToJSONObject(src ErrSource, attr map[string]*structpb.Value) (interface
 
 	jsonBytes, err := protojson.Marshal(&privatev1.AttrWrapper{Attr: attr})
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal %s: %w", src, err)
+		return nil, fmt.Errorf("[ERR-378] failed to marshal %s: %w", src, err)
 	}
 
 	return gjson.GetBytes(jsonBytes, attrPath).Value(), nil
@@ -232,7 +232,7 @@ func (m *manager) loadSchema(ctx context.Context, url string) (*jsonschema.Schem
 	e.schema, e.err = m.loadSchemaFromStore(ctx, url)
 
 	if e.err != nil && errors.Is(e.err, fs.ErrNotExist) {
-		e.err = fmt.Errorf("schema %q does not exist in the store", url)
+		e.err = fmt.Errorf("[ERR-379] schema %q does not exist in the store", url)
 	}
 
 	_ = m.cache.Set(url, e)

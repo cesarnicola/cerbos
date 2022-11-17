@@ -44,7 +44,7 @@ func (k Kind) String() string {
 	case DerivedRolesKind:
 		return DerivedRolesKindStr
 	default:
-		panic(fmt.Errorf("unknown policy kind %d", k))
+		panic(fmt.Errorf("[ERR-354] unknown policy kind %d", k))
 	}
 }
 
@@ -58,7 +58,7 @@ func GetKind(p *policyv1.Policy) Kind {
 	case *policyv1.Policy_DerivedRoles:
 		return DerivedRolesKind
 	default:
-		panic(fmt.Errorf("unknown policy type %T", pt))
+		panic(fmt.Errorf("[ERR-355] unknown policy type %T", pt))
 	}
 }
 
@@ -245,7 +245,7 @@ func Wrap(p *policyv1.Policy) Wrapper {
 		w.Name = pt.DerivedRoles.Name
 
 	default:
-		panic(fmt.Errorf("unknown policy type %T", pt))
+		panic(fmt.Errorf("[ERR-356] unknown policy type %T", pt))
 	}
 
 	return w

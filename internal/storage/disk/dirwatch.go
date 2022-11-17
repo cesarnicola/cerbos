@@ -35,7 +35,7 @@ const (
 func watchDir(ctx context.Context, dir string, idx index.Index, sub *storage.SubscriptionManager, cooldownPeriod time.Duration) error {
 	resolved, err := filepath.EvalSymlinks(dir)
 	if err != nil {
-		return fmt.Errorf("could not resolve %s: %w", dir, err)
+		return fmt.Errorf("[ERR-510] could not resolve %s: %w", dir, err)
 	}
 
 	dw := &dirWatch{
@@ -49,7 +49,7 @@ func watchDir(ctx context.Context, dir string, idx index.Index, sub *storage.Sub
 	}
 
 	if err := notify.Watch(filepath.Join(dir, "..."), dw.watchChan, notify.All); err != nil {
-		return fmt.Errorf("failed to watch directory %s: %w", dir, err)
+		return fmt.Errorf("[ERR-511] failed to watch directory %s: %w", dir, err)
 	}
 
 	go dw.handleEvents(ctx)
@@ -187,7 +187,7 @@ func (dw *dirWatch) triggerUpdate() {
 func readPolicy(path string) (*policyv1.Policy, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open %s: %w", path, err)
+		return nil, fmt.Errorf("[ERR-512] failed to open %s: %w", path, err)
 	}
 
 	defer f.Close()

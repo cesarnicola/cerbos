@@ -46,7 +46,7 @@ func TestNewStore(t *testing.T) {
 		conf.SetDefaults()
 		must := require.New(t)
 		_, err := NewStore(ctx, conf, clonerFunc(func(_ context.Context) (*CloneResult, error) {
-			return nil, errors.New("any error")
+			return nil, errors.New("[ERR-453] any error")
 		}))
 		must.Error(err)
 	})
@@ -91,7 +91,7 @@ func mkDeleteFn(t *testing.T, bucket *blob.Bucket) internal.MutateStoreFn {
 		for _, key := range keysInStore {
 			err := bucket.Delete(context.Background(), key)
 			if err != nil {
-				return fmt.Errorf("failed to delete from the store: %w", err)
+				return fmt.Errorf("[ERR-454] failed to delete from the store: %w", err)
 			}
 		}
 
@@ -106,7 +106,7 @@ func mkAddFn(t *testing.T, bucket *blob.Bucket) internal.MutateStoreFn {
 		var err error
 		keysInStore, err = uploadDirToBucket(t, context.Background(), test.PathToDir(t, "store"), bucket)
 		if err != nil {
-			return fmt.Errorf("failed to add to the store: %w", err)
+			return fmt.Errorf("[ERR-455] failed to add to the store: %w", err)
 		}
 		return nil
 	}

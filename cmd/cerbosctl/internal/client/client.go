@@ -11,7 +11,7 @@ import (
 	"github.com/cerbos/cerbos/cmd/cerbosctl/internal/flagset"
 )
 
-var errInvalidCredentials = errors.New("invalid credentials: username and password must be non-empty strings")
+var errInvalidCredentials = errors.New("[ERR-183] invalid credentials: username and password must be non-empty strings")
 
 type Context struct {
 	Client      client.Client
@@ -27,7 +27,7 @@ func GetAdminClient(globals *flagset.Globals) (client.AdminClient, error) {
 
 	ac, err := client.NewAdminClientWithCredentials(globals.Server, globals.Username, globals.Password, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create the admin client: %w", err)
+		return nil, fmt.Errorf("[ERR-184] failed to create the admin client: %w", err)
 	}
 
 	return ac, nil
@@ -38,7 +38,7 @@ func GetClient(globals *flagset.Globals) (client.Client, error) {
 
 	c, err := client.New(globals.Server, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create the client: %w", err)
+		return nil, fmt.Errorf("[ERR-185] failed to create the client: %w", err)
 	}
 
 	return c, nil

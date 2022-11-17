@@ -73,7 +73,7 @@ func Start(ctx context.Context, store storage.Store) {
 	_ = config.GetSection(conf)
 
 	if !isEnabled(conf) || WriteKey == "" || DataPlaneURL == "" {
-		logger.Info("Telemetry disabled")
+		logger.Info("[ERR-602] Telemetry disabled")
 		return
 	}
 
@@ -184,7 +184,7 @@ func newAnalyticsReporter(conf *Conf, store storage.Store, fsys afero.Fs, logger
 		Logger: zapLogWrapper{logger: logger.Sugar()},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to instantiate Analytics client: %w", err)
+		return nil, fmt.Errorf("[ERR-603] failed to instantiate Analytics client: %w", err)
 	}
 
 	return newAnalyticsReporterWithClient(client, conf, store, fsys, logger), nil
@@ -306,12 +306,12 @@ func (r *analyticsReporter) reportServerStop() {
 func (r *analyticsReporter) writeState() error {
 	stateBytes, err := protojson.Marshal(r.state)
 	if err != nil {
-		return fmt.Errorf("failed to marshal proto: %w", err)
+		return fmt.Errorf("[ERR-604] failed to marshal proto: %w", err)
 	}
 
 	//nolint:gomnd
 	if err := afero.WriteFile(r.fsys, stateFile, stateBytes, 0o600); err != nil {
-		return fmt.Errorf("failed to write state: %w", err)
+		return fmt.Errorf("[ERR-605] failed to write state: %w", err)
 	}
 
 	return nil
@@ -320,7 +320,7 @@ func (r *analyticsReporter) writeState() error {
 func (r *analyticsReporter) send(kind string, event proto.Message) error {
 	props, err := mkProps(event)
 	if err != nil {
-		return fmt.Errorf("failed to create properties: %w", err)
+		return fmt.Errorf("[ERR-606] failed to create properties: %w", err)
 	}
 
 	if err := r.client.Enqueue(analytics.Track{
@@ -328,7 +328,7 @@ func (r *analyticsReporter) send(kind string, event proto.Message) error {
 		Event:       kind,
 		Properties:  props,
 	}); err != nil {
-		return fmt.Errorf("failed to enqueue event: %w", err)
+		return fmt.Errorf("[ERR-607] failed to enqueue event: %w", err)
 	}
 
 	r.state.LastTimestamp = timestamppb.Now()
@@ -338,12 +338,12 @@ func (r *analyticsReporter) send(kind string, event proto.Message) error {
 func mkProps(event proto.Message) (analytics.Properties, error) {
 	evtBytes, err := protojson.Marshal(event)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal event: %w", err)
+		return nil, fmt.Errorf("[ERR-608] failed to marshal event: %w", err)
 	}
 
 	var props map[string]any
 	if err := json.Unmarshal(evtBytes, &props); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal evt: %w", err)
+		return nil, fmt.Errorf("[ERR-609] failed to unmarshal evt: %w", err)
 	}
 
 	return analytics.Properties(props), nil

@@ -42,7 +42,7 @@ func init() {
 	storage.RegisterDriver(DriverName, func(ctx context.Context, confW *config.Wrapper) (storage.Store, error) {
 		conf := new(Conf)
 		if err := confW.GetSection(conf); err != nil {
-			return nil, fmt.Errorf("failed to read git configuration: %w", err)
+			return nil, fmt.Errorf("[ERR-521] failed to read git configuration: %w", err)
 		}
 
 		return NewStore(ctx, conf)
@@ -79,9 +79,9 @@ func (s *Store) init(ctx context.Context) error {
 	}
 	finfo, err := os.Stat(s.conf.CheckoutDir)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("failed to stat %s: %w", s.conf.CheckoutDir, err)
+		return fmt.Errorf("[ERR-522] failed to stat %s: %w", s.conf.CheckoutDir, err)
 	} else if finfo != nil && !finfo.IsDir() {
-		return fmt.Errorf("not a directory: %s", s.conf.CheckoutDir)
+		return fmt.Errorf("[ERR-523] not a directory: %s", s.conf.CheckoutDir)
 	}
 
 	loadAndStartPoller := func() error {
@@ -97,7 +97,7 @@ func (s *Store) init(ctx context.Context) error {
 	// if the directory does not exist, create it and clone the repo
 	if errors.Is(err, os.ErrNotExist) {
 		if err := os.MkdirAll(s.conf.CheckoutDir, 0o744); err != nil { //nolint:gomnd
-			return fmt.Errorf("failed to create directory %s: %w", s.conf.CheckoutDir, err)
+			return fmt.Errorf("[ERR-524] failed to create directory %s: %w", s.conf.CheckoutDir, err)
 		}
 
 		if err := s.cloneRepo(ctx); err != nil {
@@ -165,12 +165,12 @@ func (s *Store) RepoStats(ctx context.Context) storage.RepoStats {
 func (s *Store) Reload(ctx context.Context) error {
 	_, err := s.pullAndCompare(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to pull: %w", err)
+		return fmt.Errorf("[ERR-525] failed to pull: %w", err)
 	}
 
 	evts, err := s.idx.Reload(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to reload index: %w", err)
+		return fmt.Errorf("[ERR-526] failed to reload index: %w", err)
 	}
 
 	s.NotifySubscribers(evts...)
@@ -180,7 +180,7 @@ func (s *Store) Reload(ctx context.Context) error {
 func isEmptyDir(dir string) (bool, error) {
 	d, err := os.Open(dir)
 	if err != nil {
-		return false, fmt.Errorf("failed to open directory %s: %w", dir, err)
+		return false, fmt.Errorf("[ERR-527] failed to open directory %s: %w", dir, err)
 	}
 
 	defer d.Close()
@@ -191,7 +191,7 @@ func isEmptyDir(dir string) (bool, error) {
 			return true, nil
 		}
 
-		return false, fmt.Errorf("failed to read directory %s: %w", dir, err)
+		return false, fmt.Errorf("[ERR-528] failed to read directory %s: %w", dir, err)
 	}
 
 	return false, nil
@@ -200,7 +200,7 @@ func isEmptyDir(dir string) (bool, error) {
 func (s *Store) cloneRepo(ctx context.Context) error {
 	auth, err := s.conf.getAuth()
 	if err != nil {
-		return fmt.Errorf("failed to create git auth credentials: %w", err)
+		return fmt.Errorf("[ERR-529] failed to create git auth credentials: %w", err)
 	}
 
 	opts := &git.CloneOptions{
@@ -216,7 +216,7 @@ func (s *Store) cloneRepo(ctx context.Context) error {
 	defer cancelFunc()
 
 	if _, err := git.PlainCloneContext(ctx, s.conf.CheckoutDir, false, opts); err != nil {
-		return fmt.Errorf("failed to clone from %s to %s: %w", s.conf.URL, s.conf.CheckoutDir, err)
+		return fmt.Errorf("[ERR-530] failed to clone from %s to %s: %w", s.conf.URL, s.conf.CheckoutDir, err)
 	}
 
 	return s.openRepo()
@@ -255,14 +255,14 @@ func (s *Store) pullAndCompare(ctx context.Context) (object.Changes, error) {
 
 		wt, err := s.repo.Worktree()
 		if err != nil {
-			return nil, fmt.Errorf("failed to get work tree: %w", err)
+			return nil, fmt.Errorf("[ERR-531] failed to get work tree: %w", err)
 		}
 
 		branch := s.conf.getBranch()
 
 		auth, err := s.conf.getAuth()
 		if err != nil {
-			return nil, fmt.Errorf("failed to create git auth credentials: %w", err)
+			return nil, fmt.Errorf("[ERR-532] failed to create git auth credentials: %w", err)
 		}
 
 		// Now pull from remote
@@ -279,7 +279,7 @@ func (s *Store) pullAndCompare(ctx context.Context) (object.Changes, error) {
 		if err := wt.PullContext(pullCtx, opts); err != nil {
 			if !errors.Is(err, git.NoErrAlreadyUpToDate) {
 				s.log.Errorw("Failed to pull from remote", "error", err)
-				return nil, fmt.Errorf("failed to pull from remote: %w", err)
+				return nil, fmt.Errorf("[ERR-533] failed to pull from remote: %w", err)
 			}
 
 			// branch is already up-to-date: nothing to do.
@@ -305,7 +305,7 @@ func (s *Store) openRepo() error {
 	s.log.Info("Opening git repo")
 	repo, err := git.PlainOpen(s.conf.CheckoutDir)
 	if err != nil {
-		return fmt.Errorf("failed to open git repo at %s: %w", s.conf.CheckoutDir, err)
+		return fmt.Errorf("[ERR-534] failed to open git repo at %s: %w", s.conf.CheckoutDir, err)
 	}
 
 	s.repo = repo
@@ -316,7 +316,7 @@ func (s *Store) openRepo() error {
 func (s *Store) ensureCorrectBranch() (plumbing.Hash, error) {
 	currHead, err := s.repo.Head()
 	if err != nil {
-		return plumbing.ZeroHash, fmt.Errorf("failed to get repo HEAD: %w", err)
+		return plumbing.ZeroHash, fmt.Errorf("[ERR-535] failed to get repo HEAD: %w", err)
 	}
 
 	currBranch := currHead.Name().Short()
@@ -329,17 +329,17 @@ func (s *Store) ensureCorrectBranch() (plumbing.Hash, error) {
 
 		wt, err := s.repo.Worktree()
 		if err != nil {
-			return plumbing.ZeroHash, fmt.Errorf("failed to get work tree: %w", err)
+			return plumbing.ZeroHash, fmt.Errorf("[ERR-536] failed to get work tree: %w", err)
 		}
 
 		opts := &git.CheckoutOptions{Branch: plumbing.NewBranchReferenceName(branch)}
 		if err := wt.Checkout(opts); err != nil {
-			return plumbing.ZeroHash, fmt.Errorf("failed to checkout branch %s: %w", branch, err)
+			return plumbing.ZeroHash, fmt.Errorf("[ERR-537] failed to checkout branch %s: %w", branch, err)
 		}
 
 		currHead, err = s.repo.Head()
 		if err != nil {
-			return plumbing.ZeroHash, fmt.Errorf("failed to get repo HEAD: %w", err)
+			return plumbing.ZeroHash, fmt.Errorf("[ERR-538] failed to get repo HEAD: %w", err)
 		}
 	}
 
@@ -349,19 +349,19 @@ func (s *Store) ensureCorrectBranch() (plumbing.Hash, error) {
 func (s *Store) compareWithHEAD(ctx context.Context, prevHash plumbing.Hash) (object.Changes, error) {
 	currHead, err := s.repo.Head()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get repo HEAD: %w", err)
+		return nil, fmt.Errorf("[ERR-539] failed to get repo HEAD: %w", err)
 	}
 
 	currHash := currHead.Hash()
 
 	currTree, err := s.getTreeForHash(currHash)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get tree for hash %s: %w", currHash, err)
+		return nil, fmt.Errorf("[ERR-540] failed to get tree for hash %s: %w", currHash, err)
 	}
 
 	prevTree, err := s.getTreeForHash(prevHash)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get tree for hash %s: %w", prevHash, err)
+		return nil, fmt.Errorf("[ERR-541] failed to get tree for hash %s: %w", prevHash, err)
 	}
 
 	s.log.Debugf("Comparing commits %s...%s", prevHash, currHash)
@@ -375,7 +375,7 @@ func (s *Store) compareWithHEAD(ctx context.Context, prevHash plumbing.Hash) (ob
 func (s *Store) getTreeForHash(hash plumbing.Hash) (*object.Tree, error) {
 	commit, err := s.repo.CommitObject(hash)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get commit for hash %s: %w", hash, err)
+		return nil, fmt.Errorf("[ERR-542] failed to get commit for hash %s: %w", hash, err)
 	}
 
 	return commit.Tree()
@@ -485,19 +485,19 @@ func (s *Store) applyIndexUpdate(ce object.ChangeEntry, eventKind storage.EventK
 func (s *Store) readPolicyFromBlob(hash plumbing.Hash) (*policyv1.Policy, error) {
 	blob, err := s.repo.BlobObject(hash)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get blob for %s: %w", hash, err)
+		return nil, fmt.Errorf("[ERR-543] failed to get blob for %s: %w", hash, err)
 	}
 
 	reader, err := blob.Reader()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get reader for blob %s: %w", hash, err)
+		return nil, fmt.Errorf("[ERR-544] failed to get reader for blob %s: %w", hash, err)
 	}
 
 	defer reader.Close()
 
 	p, err := policy.ReadPolicy(reader)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read policy from blob %s: %w", hash, err)
+		return nil, fmt.Errorf("[ERR-545] failed to read policy from blob %s: %w", hash, err)
 	}
 
 	return p, nil

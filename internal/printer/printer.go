@@ -61,7 +61,7 @@ func (p *Printer) coloredJSON(data string, colorLevel outputcolor.Level) error {
 
 	iterator, err := lexer.Tokenise(nil, data)
 	if err != nil {
-		return fmt.Errorf("failed to tokenise JSON: %w", err)
+		return fmt.Errorf("[ERR-364] failed to tokenise JSON: %w", err)
 	}
 
 	return formatter.Format(p.stdout, styles.SolarizedDark256, iterator)
@@ -78,7 +78,7 @@ func (p *Printer) PrintJSON(val any, colorLevel outputcolor.Level) error {
 
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(val); err != nil {
-		return fmt.Errorf("failed to encode JSON: %w", err)
+		return fmt.Errorf("[ERR-365] failed to encode JSON: %w", err)
 	}
 
 	if colorLevel.Enabled() {
@@ -108,13 +108,13 @@ func (p *Printer) coloredYAML(data string, colorLevel outputcolor.Level) ([]byte
 
 	iterator, err := lexer.Tokenise(nil, data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to tokenise YAML: %w", err)
+		return nil, fmt.Errorf("[ERR-366] failed to tokenise YAML: %w", err)
 	}
 
 	var yml bytes.Buffer
 	err = formatter.Format(&yml, styles.SolarizedDark256, iterator)
 	if err != nil {
-		return nil, fmt.Errorf("failed to format yaml: %w", err)
+		return nil, fmt.Errorf("[ERR-367] failed to format yaml: %w", err)
 	}
 
 	return yml.Bytes(), nil
@@ -123,12 +123,12 @@ func (p *Printer) coloredYAML(data string, colorLevel outputcolor.Level) ([]byte
 func (p *Printer) PrintProtoYAML(message proto.Message, colorLevel outputcolor.Level, indent int) error {
 	data, err := protojson.MarshalOptions{Multiline: true}.Marshal(message)
 	if err != nil {
-		return fmt.Errorf("failed to encode JSON: %w", err)
+		return fmt.Errorf("[ERR-368] failed to encode JSON: %w", err)
 	}
 
 	yamlBytes, err := yaml.JSONToYAML(data)
 	if err != nil {
-		return fmt.Errorf("failed to convert data to YAML: %w", err)
+		return fmt.Errorf("[ERR-369] failed to convert data to YAML: %w", err)
 	}
 
 	if colorLevel.Enabled() {
@@ -148,7 +148,7 @@ func (p *Printer) PrintProtoYAML(message proto.Message, colorLevel outputcolor.L
 func (p *Printer) PrintProtoJSON(message proto.Message, colorLevel outputcolor.Level) error {
 	data, err := protojson.MarshalOptions{Multiline: true}.Marshal(message)
 	if err != nil {
-		return fmt.Errorf("failed to encode JSON: %w", err)
+		return fmt.Errorf("[ERR-370] failed to encode JSON: %w", err)
 	}
 
 	output := fmt.Sprintf("%s\n", data)

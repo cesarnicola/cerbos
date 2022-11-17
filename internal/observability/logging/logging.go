@@ -101,11 +101,11 @@ func doInitLogging(ctx context.Context, level string) {
 func setLevelForDuration(level, originalLevel zapcore.Level, duration time.Duration, inProgress *atomic.Bool, atomicLevel *zap.AtomicLevel) {
 	log := zap.S().Named("logging")
 
-	log.Infof("Temporarily setting global log level to %s for %s", level, duration)
+	log.Infof("[ERR-337] Temporarily setting global log level to %s for %s", level, duration)
 	atomicLevel.SetLevel(level)
 
 	time.AfterFunc(duration, func() {
-		log.Infof("Reverting global log level to %s", originalLevel)
+		log.Infof("[ERR-338] Reverting global log level to %s", originalLevel)
 		atomicLevel.SetLevel(originalLevel)
 		inProgress.Store(false)
 	})

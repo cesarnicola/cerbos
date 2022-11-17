@@ -94,7 +94,7 @@ func WithAdminAPI(username, password string) ServerOpt {
 	return func(so *serverOpt) {
 		hashBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			panic(fmt.Errorf("failed to generate hash for password: %w", err))
+			panic(fmt.Errorf("[ERR-84] failed to generate hash for password: %w", err))
 		}
 
 		so.addOverride("server.adminAPI.enabled", "true")
@@ -152,26 +152,26 @@ func (so *serverOpt) toConfigWrapper() (*config.Wrapper, error) {
 
 		httpAddr, err := util.GetFreeListenAddr()
 		if err != nil {
-			return nil, fmt.Errorf("failed to find free listen address: %w", err)
+			return nil, fmt.Errorf("[ERR-85] failed to find free listen address: %w", err)
 		}
 		defaults["server.httpListenAddr"] = httpAddr
 
 		grpcAddr, err := util.GetFreeListenAddr()
 		if err != nil {
-			return nil, fmt.Errorf("failed to find free listen address: %w", err)
+			return nil, fmt.Errorf("[ERR-86] failed to find free listen address: %w", err)
 		}
 		defaults["server.grpcListenAddr"] = grpcAddr
 
 		for k, v := range defaults {
 			if err := strvals.ParseInto(fmt.Sprintf("%s=%s", k, v), confOverrides); err != nil {
-				return nil, fmt.Errorf("failed to parse default config [%s=%s]: %w", k, v, err)
+				return nil, fmt.Errorf("[ERR-87] failed to parse default config [%s=%s]: %w", k, v, err)
 			}
 		}
 	}
 
 	for k, v := range so.overrides {
 		if err := strvals.ParseInto(fmt.Sprintf("%s=%s", k, v), confOverrides); err != nil {
-			return nil, fmt.Errorf("failed to parse config override [%s=%s]: %w", k, v, err)
+			return nil, fmt.Errorf("[ERR-88] failed to parse config override [%s=%s]: %w", k, v, err)
 		}
 	}
 
@@ -260,7 +260,7 @@ func (sb *serverBldr) mkAuxData() *serverBldr {
 
 	adConf := new(auxdata.Conf)
 	if err := sb.conf.GetSection(adConf); err != nil {
-		sb.err = fmt.Errorf("failed to load auxData configuration: %w", err)
+		sb.err = fmt.Errorf("[ERR-89] failed to load auxData configuration: %w", err)
 		return sb
 	}
 
@@ -275,7 +275,7 @@ func (sb *serverBldr) mkSchemaMgr() *serverBldr {
 
 	schemaConf := new(schema.Conf)
 	if err := sb.conf.GetSection(schemaConf); err != nil {
-		sb.err = fmt.Errorf("failed to load schema configuration: %w", err)
+		sb.err = fmt.Errorf("[ERR-90] failed to load schema configuration: %w", err)
 		return sb
 	}
 
@@ -296,7 +296,7 @@ func (sb *serverBldr) mkPolicyLoader() *serverBldr {
 	if ss, ok := sb.store.(storage.SourceStore); ok {
 		compileConf := new(compile.Conf)
 		if err := sb.conf.GetSection(compileConf); err != nil {
-			sb.err = fmt.Errorf("failed to load compile configuration: %w", err)
+			sb.err = fmt.Errorf("[ERR-91] failed to load compile configuration: %w", err)
 			return sb
 		}
 
@@ -315,7 +315,7 @@ func (sb *serverBldr) mkEngine() *serverBldr {
 
 	engineConf := new(engine.Conf)
 	if err := sb.conf.GetSection(engineConf); err != nil {
-		sb.err = fmt.Errorf("failed to load engine configuration: %w", err)
+		sb.err = fmt.Errorf("[ERR-92] failed to load engine configuration: %w", err)
 		return sb
 	}
 
@@ -335,7 +335,7 @@ func (sb *serverBldr) mkServer() *serverBldr {
 
 	sb.serverConf = new(server.Conf)
 	if err := sb.conf.GetSection(sb.serverConf); err != nil {
-		sb.err = fmt.Errorf("failed to load server configuration: %w", err)
+		sb.err = fmt.Errorf("[ERR-93] failed to load server configuration: %w", err)
 		return sb
 	}
 
@@ -407,7 +407,7 @@ func mkGRPCConn(ctx context.Context, serverConf *server.Conf) (grpc.ClientConnIn
 	if conf := serverConf.TLS; conf != nil {
 		certificate, err := tls.LoadX509KeyPair(conf.Cert, conf.Key)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load certificate and key: %w", err)
+			return nil, fmt.Errorf("[ERR-94] failed to load certificate and key: %w", err)
 		}
 
 		tlsConfig := util.DefaultTLSConfig()
@@ -418,12 +418,12 @@ func mkGRPCConn(ctx context.Context, serverConf *server.Conf) (grpc.ClientConnIn
 			certPool := x509.NewCertPool()
 			bs, err := os.ReadFile(conf.CACert)
 			if err != nil {
-				return nil, fmt.Errorf("failed to load CA certificate: %w", err)
+				return nil, fmt.Errorf("[ERR-95] failed to load CA certificate: %w", err)
 			}
 
 			ok := certPool.AppendCertsFromPEM(bs)
 			if !ok {
-				return nil, errors.New("failed to append certificates to the pool")
+				return nil, errors.New("[ERR-96] failed to append certificates to the pool")
 			}
 
 			tlsConfig.ClientAuth = tls.VerifyClientCertIfGiven

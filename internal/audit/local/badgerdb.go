@@ -37,7 +37,7 @@ func init() {
 	audit.RegisterBackend("local", func(_ context.Context, confW *config.Wrapper) (audit.Log, error) {
 		conf := new(Conf)
 		if err := confW.GetSection(conf); err != nil {
-			return nil, fmt.Errorf("failed to read local audit log configuration: %w", err)
+			return nil, fmt.Errorf("[ERR-231] failed to read local audit log configuration: %w", err)
 		}
 
 		return NewLog(conf)
@@ -62,10 +62,10 @@ func NewLog(conf *Conf) (*Log, error) {
 	opts = opts.WithMetricsEnabled(false)
 	opts = opts.WithLogger(newDBLogger(logger))
 
-	logger.Info("Initializing audit log", zap.String("path", conf.StoragePath))
+	logger.Info("[ERR-232] Initializing audit log", zap.String("path", conf.StoragePath))
 	db, err := badgerv3.Open(opts)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("[ERR-233] failed to open database: %w", err)
 	}
 
 	bufferSize := int(conf.Advanced.BufferSize)
@@ -114,7 +114,7 @@ func (l *Log) batchWriter(maxBatchSize int, flushInterval time.Duration) {
 			}
 
 			if err := batch.add(entry); err != nil {
-				logger.Warn("Failed to add entry to batch", zap.Error(err))
+				logger.Warn("[ERR-234] Failed to add entry to batch", zap.Error(err))
 				continue
 			}
 		case <-ticker.C:
@@ -141,7 +141,7 @@ func (l *Log) gc(gcInterval time.Duration) {
 			logger.Debug("Running value log GC")
 			if err := l.db.RunValueLogGC(badgerDiscardRatio); err != nil {
 				if !errors.Is(err, badgerv3.ErrNoRewrite) {
-					logger.Error("Failed to run value log GC", zap.Error(err))
+					logger.Error("[ERR-235] Failed to run value log GC", zap.Error(err))
 				}
 			}
 			logger.Debug("Finished running value log GC")
@@ -160,12 +160,12 @@ func (l *Log) WriteAccessLogEntry(ctx context.Context, record audit.AccessLogEnt
 
 	value, err := rec.MarshalVT()
 	if err != nil {
-		return fmt.Errorf("failed to marshal data: %w", err)
+		return fmt.Errorf("[ERR-236] failed to marshal data: %w", err)
 	}
 
 	callID, err := audit.ID(rec.CallId).Repr()
 	if err != nil {
-		return fmt.Errorf("invalid call ID: %w", err)
+		return fmt.Errorf("[ERR-237] invalid call ID: %w", err)
 	}
 
 	key := genKey(accessLogPrefix, callID)
@@ -181,12 +181,12 @@ func (l *Log) WriteDecisionLogEntry(ctx context.Context, record audit.DecisionLo
 
 	value, err := rec.MarshalVT()
 	if err != nil {
-		return fmt.Errorf("failed to marshal data: %w", err)
+		return fmt.Errorf("[ERR-238] failed to marshal data: %w", err)
 	}
 
 	callID, err := audit.ID(rec.CallId).Repr()
 	if err != nil {
-		return fmt.Errorf("invalid call ID: %w", err)
+		return fmt.Errorf("[ERR-239] invalid call ID: %w", err)
 	}
 
 	key := genKey(decisionLogPrefix, callID)

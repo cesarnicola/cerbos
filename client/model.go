@@ -73,7 +73,7 @@ func (p *Principal) WithAttributes(attr map[string]any) *Principal {
 	for k, v := range attr {
 		pbVal, err := util.ToStructPB(v)
 		if err != nil {
-			p.err = multierr.Append(p.err, fmt.Errorf("invalid attribute value for '%s': %w", k, err))
+			p.err = multierr.Append(p.err, fmt.Errorf("[ERR-55] invalid attribute value for '%s': %w", k, err))
 			continue
 		}
 		p.p.Attr[k] = pbVal
@@ -91,7 +91,7 @@ func (p *Principal) WithAttr(key string, value any) *Principal {
 
 	pbVal, err := util.ToStructPB(value)
 	if err != nil {
-		p.err = multierr.Append(p.err, fmt.Errorf("invalid attribute value for '%s': %w", key, err))
+		p.err = multierr.Append(p.err, fmt.Errorf("[ERR-56] invalid attribute value for '%s': %w", key, err))
 		return p
 	}
 
@@ -141,7 +141,7 @@ func (r *Resource) WithAttributes(attr map[string]any) *Resource {
 	for k, v := range attr {
 		pbVal, err := util.ToStructPB(v)
 		if err != nil {
-			r.err = multierr.Append(r.err, fmt.Errorf("invalid attribute value for '%s': %w", k, err))
+			r.err = multierr.Append(r.err, fmt.Errorf("[ERR-57] invalid attribute value for '%s': %w", k, err))
 			continue
 		}
 		r.r.Attr[k] = pbVal
@@ -159,7 +159,7 @@ func (r *Resource) WithAttr(key string, value any) *Resource {
 
 	pbVal, err := util.ToStructPB(value)
 	if err != nil {
-		r.err = multierr.Append(r.err, fmt.Errorf("invalid attribute value for '%s': %w", key, err))
+		r.err = multierr.Append(r.err, fmt.Errorf("[ERR-58] invalid attribute value for '%s': %w", key, err))
 		return r
 	}
 
@@ -216,7 +216,7 @@ func (rs *ResourceSet) AddResourceInstance(id string, attr map[string]any) *Reso
 	for k, v := range attr {
 		pbVal, err := structpb.NewValue(v)
 		if err != nil {
-			rs.err = multierr.Append(rs.err, fmt.Errorf("invalid attribute value for '%s': %w", k, err))
+			rs.err = multierr.Append(rs.err, fmt.Errorf("[ERR-59] invalid attribute value for '%s': %w", k, err))
 			continue
 		}
 		pbAttr[k] = pbVal
@@ -267,7 +267,7 @@ func (crsr *CheckResourceSetResponse) Errors() error {
 	for resource, actions := range crsr.ResourceInstances {
 		for _, verr := range actions.ValidationErrors {
 			err = multierr.Append(err,
-				fmt.Errorf("resource %q failed validation: source=%s path=%s msg=%s", resource, verr.Source, verr.Path, verr.Message),
+				fmt.Errorf("[ERR-60] resource %q failed validation: source=%s path=%s msg=%s", resource, verr.Source, verr.Path, verr.Message),
 			)
 		}
 	}
@@ -306,7 +306,7 @@ func (rb *ResourceBatch) Add(resource *Resource, actions ...string) *ResourceBat
 	}
 
 	if err := entry.Validate(); err != nil {
-		rb.err = multierr.Append(rb.err, fmt.Errorf("invalid resource '%s': %w", resource.r.Id, err))
+		rb.err = multierr.Append(rb.err, fmt.Errorf("[ERR-61] invalid resource '%s': %w", resource.r.Id, err))
 		return rb
 	}
 
@@ -326,7 +326,7 @@ func (rb *ResourceBatch) Validate() error {
 	}
 
 	if len(rb.batch) == 0 {
-		return errors.New("empty batch")
+		return errors.New("[ERR-62] empty batch")
 	}
 
 	var errList error
@@ -397,7 +397,7 @@ func (crbr *CheckResourceBatchResponse) Errors() error {
 	for _, result := range crbr.Results {
 		for _, verr := range result.ValidationErrors {
 			err = multierr.Append(err,
-				fmt.Errorf("resource %q failed validation: source=%s path=%s msg=%s", result.ResourceId, verr.Source, verr.Path, verr.Message),
+				fmt.Errorf("[ERR-63] resource %q failed validation: source=%s path=%s msg=%s", result.ResourceId, verr.Source, verr.Path, verr.Message),
 			)
 		}
 	}
@@ -489,7 +489,7 @@ func (crr *CheckResourcesResponse) GetResource(resourceID string, match ...Match
 
 	indexes, ok := crr.idx[resourceID]
 	if !ok {
-		return &ResourceResult{err: fmt.Errorf("resource with ID %q does not exist in the response", resourceID)}
+		return &ResourceResult{err: fmt.Errorf("[ERR-64] resource with ID %q does not exist in the response", resourceID)}
 	}
 
 	for _, i := range indexes {
@@ -508,7 +508,7 @@ func (crr *CheckResourcesResponse) GetResource(resourceID string, match ...Match
 		}
 	}
 
-	return &ResourceResult{err: fmt.Errorf("resource with ID %q does not exist in the response", resourceID)}
+	return &ResourceResult{err: fmt.Errorf("[ERR-65] resource with ID %q does not exist in the response", resourceID)}
 }
 
 // Errors returns any validation errors returned by the server.
@@ -517,7 +517,7 @@ func (crr *CheckResourcesResponse) Errors() error {
 	for _, result := range crr.Results {
 		for _, verr := range result.ValidationErrors {
 			err = multierr.Append(err,
-				fmt.Errorf("resource %q failed validation: source=%s path=%s msg=%s", result.Resource.Id, verr.Source, verr.Path, verr.Message),
+				fmt.Errorf("[ERR-66] resource %q failed validation: source=%s path=%s msg=%s", result.Resource.Id, verr.Source, verr.Path, verr.Message),
 			)
 		}
 	}
@@ -548,7 +548,7 @@ func NewPolicySet() *PolicySet {
 func (ps *PolicySet) AddPolicyFromFile(file string) *PolicySet {
 	f, err := os.Open(file)
 	if err != nil {
-		ps.err = multierr.Append(ps.err, fmt.Errorf("failed to add policy from file '%s': %w", file, err))
+		ps.err = multierr.Append(ps.err, fmt.Errorf("[ERR-67] failed to add policy from file '%s': %w", file, err))
 		return ps
 	}
 
@@ -560,13 +560,13 @@ func (ps *PolicySet) AddPolicyFromFile(file string) *PolicySet {
 func (ps *PolicySet) AddPolicyFromFileWithErr(file string) (*PolicySet, error) {
 	f, err := os.Open(file)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file %s: %w", file, err)
+		return nil, fmt.Errorf("[ERR-68] failed to open file %s: %w", file, err)
 	}
 	defer f.Close()
 
 	p, err := policy.ReadPolicy(f)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read policy: %w", err)
+		return nil, fmt.Errorf("[ERR-69] failed to read policy: %w", err)
 	}
 
 	return ps.AddPolicies(p), nil
@@ -576,7 +576,7 @@ func (ps *PolicySet) AddPolicyFromFileWithErr(file string) (*PolicySet, error) {
 func (ps *PolicySet) AddPolicyFromReader(r io.Reader) *PolicySet {
 	p, err := policy.ReadPolicy(r)
 	if err != nil {
-		ps.err = multierr.Append(ps.err, fmt.Errorf("failed to add policy from reader: %w", err))
+		ps.err = multierr.Append(ps.err, fmt.Errorf("[ERR-70] failed to add policy from reader: %w", err))
 		return ps
 	}
 
@@ -598,7 +598,7 @@ func (ps *PolicySet) AddResourcePolicies(policies ...*ResourcePolicy) *PolicySet
 		}
 
 		if err := ps.add(p); err != nil {
-			ps.err = multierr.Append(ps.err, fmt.Errorf("failed to add resource policy [%s:%s]: %w", p.p.Resource, p.p.Version, err))
+			ps.err = multierr.Append(ps.err, fmt.Errorf("[ERR-71] failed to add resource policy [%s:%s]: %w", p.p.Resource, p.p.Version, err))
 		}
 	}
 
@@ -613,7 +613,7 @@ func (ps *PolicySet) AddPrincipalPolicies(policies ...*PrincipalPolicy) *PolicyS
 		}
 
 		if err := ps.add(p); err != nil {
-			ps.err = multierr.Append(ps.err, fmt.Errorf("failed to add principal policy [%s:%s]: %w", p.pp.Principal, p.pp.Version, err))
+			ps.err = multierr.Append(ps.err, fmt.Errorf("[ERR-72] failed to add principal policy [%s:%s]: %w", p.pp.Principal, p.pp.Version, err))
 		}
 	}
 
@@ -628,7 +628,7 @@ func (ps *PolicySet) AddDerivedRoles(policies ...*DerivedRoles) *PolicySet {
 		}
 
 		if err := ps.add(p); err != nil {
-			ps.err = multierr.Append(ps.err, fmt.Errorf("failed to add derived roles [%s]: %w", p.dr.Name, err))
+			ps.err = multierr.Append(ps.err, fmt.Errorf("[ERR-73] failed to add derived roles [%s]: %w", p.dr.Name, err))
 		}
 	}
 
@@ -670,7 +670,7 @@ func (ps *PolicySet) Validate() error {
 	}
 
 	if len(ps.policies) == 0 {
-		return errors.New("empty policy set")
+		return errors.New("[ERR-74] empty policy set")
 	}
 
 	return nil
@@ -691,7 +691,7 @@ func NewSchemaSet() *SchemaSet {
 func (ss *SchemaSet) AddSchemaFromFile(file string, ignorePathInID bool) *SchemaSet {
 	f, err := os.Open(file)
 	if err != nil {
-		ss.err = multierr.Append(ss.err, fmt.Errorf("failed to add schema from file '%s': %w", file, err))
+		ss.err = multierr.Append(ss.err, fmt.Errorf("[ERR-75] failed to add schema from file '%s': %w", file, err))
 		return ss
 	}
 
@@ -718,13 +718,13 @@ func (ss *SchemaSet) AddSchemaFromFileWithErr(file string, ignorePathInID bool) 
 func (ss *SchemaSet) AddSchemaFromFileWithIDAndErr(file, id string) (*SchemaSet, error) {
 	f, err := os.Open(file)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open file %s: %w", file, err)
+		return nil, fmt.Errorf("[ERR-76] failed to open file %s: %w", file, err)
 	}
 	defer f.Close()
 
 	s, err := schema.ReadSchema(f, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read schema: %w", err)
+		return nil, fmt.Errorf("[ERR-77] failed to read schema: %w", err)
 	}
 
 	return ss.AddSchemas(s), nil
@@ -734,7 +734,7 @@ func (ss *SchemaSet) AddSchemaFromFileWithIDAndErr(file, id string) (*SchemaSet,
 func (ss *SchemaSet) AddSchemaFromReader(r io.Reader, id string) *SchemaSet {
 	s, err := schema.ReadSchema(r, id)
 	if err != nil {
-		ss.err = multierr.Append(ss.err, fmt.Errorf("failed to add schema from reader: %w", err))
+		ss.err = multierr.Append(ss.err, fmt.Errorf("[ERR-78] failed to add schema from reader: %w", err))
 		return ss
 	}
 	ss.schemas = append(ss.schemas, s)
@@ -842,7 +842,7 @@ func (rp *ResourcePolicy) AddResourceRules(rules ...*ResourceRule) *ResourcePoli
 		}
 
 		if err := r.Validate(); err != nil {
-			rp.err = multierr.Append(rp.err, fmt.Errorf("invalid rule: %w", err))
+			rp.err = multierr.Append(rp.err, fmt.Errorf("[ERR-79] invalid rule: %w", err))
 			continue
 		}
 
@@ -966,7 +966,7 @@ func (pp *PrincipalPolicy) AddPrincipalRules(rules ...*PrincipalRule) *Principal
 		}
 
 		if err := r.Validate(); err != nil {
-			pp.err = multierr.Append(pp.err, fmt.Errorf("invalid rule: %w", err))
+			pp.err = multierr.Append(pp.err, fmt.Errorf("[ERR-80] invalid rule: %w", err))
 			continue
 		}
 

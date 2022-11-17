@@ -120,13 +120,13 @@ func uploadDirToBucket(tb testing.TB, ctx context.Context, dir string, bucket *b
 
 		fileBytes, err := os.ReadFile(path)
 		if err != nil {
-			return fmt.Errorf("failed to read file %q: %w", path, err)
+			return fmt.Errorf("[ERR-456] failed to read file %q: %w", path, err)
 		}
 
 		tb.Logf("[START] Copying %s", key)
 		if err := bucket.WriteAll(ctx, key, fileBytes, nil); err != nil {
 			tb.Logf("[ERROR] Copying %s: %v", key, err)
-			return fmt.Errorf("failed to write to bucket: %w", err)
+			return fmt.Errorf("[ERR-457] failed to write to bucket: %w", err)
 		}
 		tb.Logf("[END] Copying %s", key)
 
@@ -185,7 +185,7 @@ func startMinio(ctx context.Context, t *testing.T, bucketName string) string {
 	// the minio client does not do service discovery for you (i.e. it does not check if connection can be established), so we have to use the health check
 	err = pool.Retry(func() error {
 		if client.IsOffline() {
-			return fmt.Errorf("healthcheck fail")
+			return fmt.Errorf("[ERR-458] healthcheck fail")
 		}
 
 		req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s/minio/health/ready", endpoint), nil)
@@ -200,7 +200,7 @@ func startMinio(ctx context.Context, t *testing.T, bucketName string) string {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("status code not OK")
+			return fmt.Errorf("[ERR-459] status code not OK")
 		}
 		return nil
 	})

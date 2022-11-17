@@ -46,19 +46,19 @@ func NewStore(ctx context.Context, conf *Conf) (*Store, error) {
 
 	pgConf, err := pgx.ParseConfig(conf.URL)
 	if err != nil {
-		log.Error("Failed to parse Postgres connection URL", zap.Error(err))
+		log.Error("[ERR-492] Failed to parse Postgres connection URL", zap.Error(err))
 		return nil, err
 	}
 
 	pgConf.Logger = zapadapter.NewLogger(log)
 	pgConf.LogLevel = pgx.LogLevelWarn
 
-	log.Info("Initializing Postgres storage", zap.String("host", pgConf.Host), zap.String("database", pgConf.Database))
+	log.Info("[ERR-493] Initializing Postgres storage", zap.String("host", pgConf.Host), zap.String("database", pgConf.Database))
 
 	connStr := stdlib.RegisterConnConfig(pgConf)
 	db, err := sqlx.Connect("pgx", connStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("[ERR-494] failed to open database: %w", err)
 	}
 
 	conf.ConnPool.Configure(db)

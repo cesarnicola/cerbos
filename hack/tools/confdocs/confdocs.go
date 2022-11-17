@@ -45,8 +45,8 @@ const (
 var templateText string
 
 var (
-	errInterfaceNotFound = errors.New("interface not found")
-	errTagNotExists      = errors.New("yaml tag does not exist")
+	errInterfaceNotFound = errors.New("[ERR-206] interface not found")
+	errTagNotExists      = errors.New("[ERR-207] yaml tag does not exist")
 	descRegex            = regexp.MustCompile(`\+desc=(.+)`)
 )
 
@@ -98,22 +98,22 @@ func main() {
 	flag.Parse()
 	absRootDir, err := filepath.Abs(*rootDir)
 	if err != nil {
-		logger.Fatalf("Failed to find absolute path to %q: %v", *rootDir, err)
+		logger.Fatalf("[ERR-208] Failed to find absolute path to %q: %v", *rootDir, err)
 	}
 
 	absOutputFile, err := filepath.Abs(*outputFile)
 	if err != nil {
-		logger.Fatalf("Failed to find absolute path to %q: %v", *outputFile, err)
+		logger.Fatalf("[ERR-209] Failed to find absolute path to %q: %v", *outputFile, err)
 	}
 
 	pkgs, err := loadPackages(absRootDir)
 	if err != nil {
-		logger.Fatalf("failed to load packages: %v", err)
+		logger.Fatalf("[ERR-210] failed to load packages: %v", err)
 	}
 
 	iface, err := findInterfaceDef(pkgs)
 	if err != nil {
-		logger.Fatalf("failed to find %s.%s: %v", interfacePackage, interfaceName, err)
+		logger.Fatalf("[ERR-211] failed to find %s.%s: %v", interfacePackage, interfaceName, err)
 	}
 
 	structs := findIfaceImplementors(iface, pkgs)
@@ -131,11 +131,11 @@ func main() {
 
 	tmpl, err := template.New("generator.go").Parse(templateText)
 	if err != nil {
-		logger.Fatalf("failed to parse template: %v", err)
+		logger.Fatalf("[ERR-212] failed to parse template: %v", err)
 	}
 
 	if err := tmpl.Execute(os.Stdout, output); err != nil {
-		logger.Fatalf("failed to render template: %v", err)
+		logger.Fatalf("[ERR-213] failed to render template: %v", err)
 	}
 }
 
@@ -202,7 +202,7 @@ func implementsIface(iface *types.Interface, obj types.Object) bool {
 func inspect(pkg *packages.Package, obj types.Object) *StructInfo {
 	ts, cg := find(pkg.Syntax, obj.Name())
 	if ts == nil {
-		logger.Fatalf("Failed to find object named %q", obj.Name())
+		logger.Fatalf("[ERR-214] Failed to find object named %q", obj.Name())
 	}
 
 	doc, _ := parseDescMarker(cg)
@@ -277,7 +277,7 @@ func inspectStruct(node ast.Expr) []FieldInfo {
 func genDocs(si *StructInfo) string {
 	buf := new(bytes.Buffer)
 	if err := doGenDocs(buf, si, 0); err != nil {
-		logger.Fatalf("failed to generate docs for %s.%s", si.Pkg, si.Name)
+		logger.Fatalf("[ERR-215] failed to generate docs for %s.%s", si.Pkg, si.Name)
 	}
 
 	return buf.String()
@@ -301,7 +301,7 @@ func walkFields(out io.Writer, fields []FieldInfo, indent int) error {
 
 		tag, err := parseTag(field.Tag)
 		if err != nil {
-			return fmt.Errorf("failed to parse tags: %w", err)
+			return fmt.Errorf("[ERR-216] failed to parse tags: %w", err)
 		}
 
 		if tag != nil {
@@ -374,7 +374,7 @@ func parseTag(tag string) (*TagInfo, error) {
 
 	t, err := structtag.Parse(tag[1 : len(tag)-1])
 	if err != nil {
-		return nil, fmt.Errorf("structtag failed to parse tags: %w", err)
+		return nil, fmt.Errorf("[ERR-217] structtag failed to parse tags: %w", err)
 	}
 
 	if t == nil {

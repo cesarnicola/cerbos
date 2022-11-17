@@ -197,7 +197,7 @@ func (h Hierarchy) ConvertToNative(typeDesc reflect.Type) (any, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("unsupported native conversion from hierarchy to '%v'", typeDesc)
+	return nil, fmt.Errorf("[ERR-288] unsupported native conversion from hierarchy to '%v'", typeDesc)
 }
 
 // ConvertToType implements ref.Val.ConvertToType.

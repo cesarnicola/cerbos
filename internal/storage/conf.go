@@ -37,12 +37,12 @@ func (c *Conf) UnmarshalYAML(unmarshal func(any) error) error {
 
 	var confMap map[string]any
 	if err := unmarshal(&confMap); err != nil {
-		return fmt.Errorf("failed to unmarshal storage config: %w", err)
+		return fmt.Errorf("[ERR-460] failed to unmarshal storage config: %w", err)
 	}
 
 	yamlBytes, err := yaml.Marshal(confMap)
 	if err != nil {
-		return fmt.Errorf("failed to marshal storage config [%v]: %w", confMap, err)
+		return fmt.Errorf("[ERR-461] failed to marshal storage config [%v]: %w", confMap, err)
 	}
 
 	c.confHolder = confHolder{}

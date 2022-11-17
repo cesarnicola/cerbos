@@ -34,12 +34,12 @@ func (cmd *combineCmd) Run() error {
 
 	data, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal test times: %w", err)
+		return fmt.Errorf("[ERR-218] failed to marshal test times: %w", err)
 	}
 
 	err = os.WriteFile(testTimesPath, data, 0o600) //nolint:gomnd
 	if err != nil {
-		return fmt.Errorf("failed to write test times: %w", err)
+		return fmt.Errorf("[ERR-219] failed to write test times: %w", err)
 	}
 
 	return nil
@@ -56,12 +56,12 @@ func readReport(kind string, index int) (junitReport, error) {
 	path := fmt.Sprintf("junit.%s.%d.xml", kind, index)
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return report, fmt.Errorf("failed to read JUnit report %q: %w", path, err)
+		return report, fmt.Errorf("[ERR-220] failed to read JUnit report %q: %w", path, err)
 	}
 
 	err = xml.Unmarshal(data, &report)
 	if err != nil {
-		return report, fmt.Errorf("failed to unmarshal JUnit report %q: %w", path, err)
+		return report, fmt.Errorf("[ERR-221] failed to unmarshal JUnit report %q: %w", path, err)
 	}
 
 	return report, nil

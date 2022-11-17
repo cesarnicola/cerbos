@@ -29,7 +29,7 @@ var conf = Config{}
 func init() {
 	srcRoot, err := findSourceRoot()
 	if err != nil {
-		panic(fmt.Errorf("failed to determine source root: %w", err))
+		panic(fmt.Errorf("[ERR-610] failed to determine source root: %w", err))
 	}
 
 	noCleanup, err := strconv.ParseBool(envOrDefault("E2E_NO_CLEANUP", "false"))
@@ -48,7 +48,7 @@ func init() {
 func findSourceRoot() (string, error) {
 	_, currFile, _, ok := runtime.Caller(0)
 	if !ok {
-		return "", fmt.Errorf("failed to find path to current file")
+		return "", fmt.Errorf("[ERR-611] failed to find path to current file")
 	}
 
 	return filepath.Abs(filepath.Join(filepath.Dir(currFile), "..", "..", ".."))

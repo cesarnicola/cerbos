@@ -31,7 +31,7 @@ func (c *Cmd) Run(k *kong.Kong, ctx *client.Context) error {
 	if len(c.SchemaIds) == 0 {
 		err := schema.List(k, ctx.AdminClient, &c.Format)
 		if err != nil {
-			return fmt.Errorf("failed to list schemas: %w", err)
+			return fmt.Errorf("[ERR-181] failed to list schemas: %w", err)
 		}
 
 		return nil
@@ -39,7 +39,7 @@ func (c *Cmd) Run(k *kong.Kong, ctx *client.Context) error {
 
 	err := schema.Get(k, ctx.AdminClient, &c.Format, c.SchemaIds...)
 	if err != nil {
-		return fmt.Errorf("failed to get schemas: %w", err)
+		return fmt.Errorf("[ERR-182] failed to get schemas: %w", err)
 	}
 
 	return nil

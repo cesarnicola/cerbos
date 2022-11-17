@@ -38,7 +38,7 @@ func Compile(unit *policy.CompilationUnit, schemaMgr schema.Manager) (rps *runti
 	mc := uc.moduleCtx(unit.ModID)
 
 	if mc == nil || mc.def == nil {
-		return nil, fmt.Errorf("missing policy definition %d: %w", unit.ModID, errInvalidCompilationUnit)
+		return nil, fmt.Errorf("[ERR-264] missing policy definition %d: %w", unit.ModID, errInvalidCompilationUnit)
 	}
 
 	switch pt := mc.def.PolicyType.(type) {
@@ -49,7 +49,7 @@ func Compile(unit *policy.CompilationUnit, schemaMgr schema.Manager) (rps *runti
 	case *policyv1.Policy_DerivedRoles:
 		rps = compileDerivedRoles(mc)
 	default:
-		mc.addErrWithDesc(fmt.Errorf("unknown policy type %T", pt), "Unexpected error")
+		mc.addErrWithDesc(fmt.Errorf("[ERR-265] unknown policy type %T", pt), "Unexpected error")
 	}
 
 	return rps, uc.error()

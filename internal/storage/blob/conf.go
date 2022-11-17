@@ -49,20 +49,20 @@ func (conf *Conf) Validate() error {
 	var errs []error
 
 	if conf.Bucket == "" {
-		errs = append(errs, errors.New("bucket is required"))
+		errs = append(errs, errors.New("[ERR-439] bucket is required"))
 	}
 
 	if conf.WorkDir == "" {
 		cacheDir, err := os.UserCacheDir()
 		if err != nil {
-			errs = append(errs, fmt.Errorf("workDir unspecified and failed to determine user cache dir: %w", err))
+			errs = append(errs, fmt.Errorf("[ERR-440] workDir unspecified and failed to determine user cache dir: %w", err))
 		} else {
 			conf.WorkDir = filepath.Join(cacheDir, util.AppName, DriverName)
 		}
 	}
 
 	if *conf.RequestTimeout > *conf.DownloadTimeout {
-		errs = append(errs, fmt.Errorf("request timeout (%.0fs) is greater than download timeout (%.0fs)", conf.RequestTimeout.Seconds(), conf.DownloadTimeout.Seconds()))
+		errs = append(errs, fmt.Errorf("[ERR-441] request timeout (%.0fs) is greater than download timeout (%.0fs)", conf.RequestTimeout.Seconds(), conf.DownloadTimeout.Seconds()))
 	}
 
 	if len(errs) > 0 {

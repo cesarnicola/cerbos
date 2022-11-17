@@ -23,7 +23,7 @@ func printPolicy(w io.Writer, policies []policy.Wrapper, output flagset.OutputFo
 	case flagset.OutputFormatPrettyJSON:
 		return printPolicyPrettyJSON(w, policies)
 	default:
-		return fmt.Errorf("only %q, %q and %q formats are supported", flagset.OutputFormatJSON, flagset.OutputFormatYAML, flagset.OutputFormatPrettyJSON)
+		return fmt.Errorf("[ERR-168] only %q, %q and %q formats are supported", flagset.OutputFormatJSON, flagset.OutputFormatYAML, flagset.OutputFormatPrettyJSON)
 	}
 }
 
@@ -31,11 +31,11 @@ func printPolicyJSON(w io.Writer, policies []policy.Wrapper) error {
 	for _, p := range policies {
 		b, err := protojson.Marshal(p.Policy)
 		if err != nil {
-			return fmt.Errorf("could not marshal policy: %w", err)
+			return fmt.Errorf("[ERR-169] could not marshal policy: %w", err)
 		}
 		_, err = fmt.Fprintf(w, "%s\n", b)
 		if err != nil {
-			return fmt.Errorf("failed to print policy: %w", err)
+			return fmt.Errorf("[ERR-170] failed to print policy: %w", err)
 		}
 	}
 	return nil
@@ -47,7 +47,7 @@ func printPolicyPrettyJSON(w io.Writer, policies []policy.Wrapper) error {
 
 		_, err := fmt.Fprintf(w, "%s\n", s)
 		if err != nil {
-			return fmt.Errorf("failed to print policy: %w", err)
+			return fmt.Errorf("[ERR-171] failed to print policy: %w", err)
 		}
 	}
 	return nil
@@ -57,12 +57,12 @@ func printPolicyYAML(w io.Writer, policies []policy.Wrapper) error {
 	for _, p := range policies {
 		_, err := fmt.Fprintln(w, "---")
 		if err != nil {
-			return fmt.Errorf("failed to print header: %w", err)
+			return fmt.Errorf("[ERR-172] failed to print header: %w", err)
 		}
 
 		err = util.WriteYAML(w, p.Policy)
 		if err != nil {
-			return fmt.Errorf("could not write policy: %w", err)
+			return fmt.Errorf("[ERR-173] could not write policy: %w", err)
 		}
 	}
 	return nil

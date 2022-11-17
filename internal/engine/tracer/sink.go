@@ -66,7 +66,7 @@ func (zs *ZapSink) AddTrace(trace *enginev1.Trace) {
 func zapTrace(trace *enginev1.Trace) zap.Field {
 	data, err := protojson.Marshal(trace)
 	if err != nil {
-		return zap.Error(fmt.Errorf("failed to marshal trace to JSON: %w", err))
+		return zap.Error(fmt.Errorf("[ERR-328] failed to marshal trace to JSON: %w", err))
 	}
 
 	return zap.Any("trace", json.RawMessage(data))

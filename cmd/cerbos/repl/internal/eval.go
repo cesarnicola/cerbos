@@ -12,7 +12,7 @@ import (
 	"github.com/cerbos/cerbos/internal/printer/colored"
 )
 
-var errEvalErrorPresent = errors.New("failed expression(s) present")
+var errEvalErrorPresent = errors.New("[ERR-120] failed expression(s) present")
 
 type evalOutput struct {
 	tree  pterm.LeveledList

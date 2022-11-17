@@ -51,7 +51,7 @@ func (sl *SchemaLoader) ListIDs(_ context.Context) ([]string, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to walk schemas directory: %w", err)
+		return nil, fmt.Errorf("[ERR-571] failed to walk schemas directory: %w", err)
 	}
 
 	return schemaIds, nil

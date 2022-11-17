@@ -29,9 +29,9 @@ const (
 )
 
 var (
-	errServerNotDefined       = errors.New("server not defined")
-	errNoCredentialsFound     = errors.New("no credentials found")
-	errNetrcUnsupportedForUDS = errors.New("netrc fallback not supported for Unix domain socket addresses")
+	errServerNotDefined       = errors.New("[ERR-42] server not defined")
+	errNoCredentialsFound     = errors.New("[ERR-43] no credentials found")
+	errNetrcUnsupportedForUDS = errors.New("[ERR-44] netrc fallback not supported for Unix domain socket addresses")
 )
 
 type environment interface {
@@ -69,7 +69,7 @@ func loadBasicAuthData(env environment, providedServer, providedUsername, provid
 func loadCredsFromNetrc(env environment, server string) (username, password string, err error) {
 	machineName, err := extractMachineName(server)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to parse server target '%s': %w", server, err)
+		return "", "", fmt.Errorf("[ERR-45] failed to parse server target '%s': %w", server, err)
 	}
 
 	var netrcPath string
@@ -78,7 +78,7 @@ func loadCredsFromNetrc(env environment, server string) (username, password stri
 	} else {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			return "", "", fmt.Errorf("failed to determine home directory to load netrc: %w", err)
+			return "", "", fmt.Errorf("[ERR-46] failed to determine home directory to load netrc: %w", err)
 		}
 
 		netrcPath = filepath.Join(homeDir, netrcFile)
@@ -86,7 +86,7 @@ func loadCredsFromNetrc(env environment, server string) (username, password stri
 
 	n, err := netrc.Parse(netrcPath)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to read netrc from '%s': %w", netrcPath, err)
+		return "", "", fmt.Errorf("[ERR-47] failed to read netrc from '%s': %w", netrcPath, err)
 	}
 
 	m := n.Machine(machineName)
@@ -132,7 +132,7 @@ func extractMachineName(target string) (string, error) {
 		if strings.HasPrefix(addr, "//") {
 			_, hostName, ok := split2(remainder[2:], "/")
 			if !ok {
-				return "", fmt.Errorf("invalid server target '%s'", target)
+				return "", fmt.Errorf("[ERR-48] invalid server target '%s'", target)
 			}
 
 			addr = hostName

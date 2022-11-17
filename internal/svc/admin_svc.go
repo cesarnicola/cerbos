@@ -77,7 +77,7 @@ func (cas *CerbosAdminService) AddOrUpdatePolicy(ctx context.Context, req *reque
 
 	log := ctxzap.Extract(ctx)
 	if err := ms.AddOrUpdate(ctx, policies...); err != nil {
-		log.Error("Failed to add/update policies", zap.Error(err))
+		log.Error("[ERR-575] Failed to add/update policies", zap.Error(err))
 		invalidPolicyErr := new(storage.InvalidPolicyError)
 		if errors.As(err, invalidPolicyErr) {
 			return nil, status.Errorf(codes.InvalidArgument, "Invalid policy: %v", invalidPolicyErr.Message)
@@ -149,7 +149,7 @@ func (cas *CerbosAdminService) GetPolicy(ctx context.Context, req *requestv1.Get
 	log := ctxzap.Extract(ctx)
 	wrappers, err := ss.LoadPolicy(ctx, req.Id...)
 	if err != nil {
-		log.Error("Could not get policy", zap.Error(err))
+		log.Error("[ERR-576] Could not get policy", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "could not get policy")
 	}
 
@@ -251,7 +251,7 @@ func (cas *CerbosAdminService) ReloadStore(ctx context.Context, req *requestv1.R
 
 	reload := func(ctx context.Context) error {
 		if err := storage.Reload(ctx, rs); err != nil {
-			log.Error("failed to reload store", zap.Error(err))
+			log.Error("[ERR-577] failed to reload store", zap.Error(err))
 			return err
 		}
 		return nil

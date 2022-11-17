@@ -129,7 +129,7 @@ func (c *Manager) recompile(evt storage.Event) error {
 
 	compileUnits, err := c.store.GetCompilationUnits(ctx, toRecompile...)
 	if err != nil {
-		return fmt.Errorf("failed to get compilation units: %w", err)
+		return fmt.Errorf("[ERR-275] failed to get compilation units: %w", err)
 	}
 
 	for modID, cu := range compileUnits {
@@ -149,7 +149,7 @@ func (c *Manager) getDependents(modID namer.ModuleID) ([]namer.ModuleID, error) 
 
 	dependents, err := c.store.GetDependents(ctx, modID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find dependents: %w", err)
+		return nil, fmt.Errorf("[ERR-276] failed to find dependents: %w", err)
 	}
 
 	if len(dependents) > 0 {
@@ -209,7 +209,7 @@ func (c *Manager) GetPolicySet(ctx context.Context, modID namer.ModuleID) (*runt
 
 		compileUnits, err := c.store.GetCompilationUnits(ctx, modID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get compilation units: %w", err)
+			return nil, fmt.Errorf("[ERR-277] failed to get compilation units: %w", err)
 		}
 
 		if len(compileUnits) == 0 {

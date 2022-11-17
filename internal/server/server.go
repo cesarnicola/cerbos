@@ -101,38 +101,38 @@ const (
 	zpagesEndpoint     = "/_cerbos/debug"
 )
 
-var ErrInvalidStore = errors.New("store does not implement either SourceStore or BinaryStore interfaces")
+var ErrInvalidStore = errors.New("[ERR-392] store does not implement either SourceStore or BinaryStore interfaces")
 
 func Start(ctx context.Context, zpagesEnabled bool) error {
 	// get configuration
 	conf, err := GetConf()
 	if err != nil {
-		return fmt.Errorf("failed to read server configuration: %w", err)
+		return fmt.Errorf("[ERR-393] failed to read server configuration: %w", err)
 	}
 
 	// create Prom exporter.
 	// this is done early to prevent metrics from other components from being discarded because there's no exporter registered.
 	ocExporter, err := initOCPromExporter(conf)
 	if err != nil {
-		return fmt.Errorf("failed to create Prometheus exporter: %w", err)
+		return fmt.Errorf("[ERR-394] failed to create Prometheus exporter: %w", err)
 	}
 
 	// create audit log
 	auditLog, err := audit.NewLog(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to create audit log: %w", err)
+		return fmt.Errorf("[ERR-395] failed to create audit log: %w", err)
 	}
 
 	// create store
 	store, err := storage.New(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to create store: %w", err)
+		return fmt.Errorf("[ERR-396] failed to create store: %w", err)
 	}
 
 	// create schema manager
 	schemaMgr, err := internalSchema.New(ctx, store)
 	if err != nil {
-		return fmt.Errorf("failed to create schema manager: %w", err)
+		return fmt.Errorf("[ERR-397] failed to create schema manager: %w", err)
 	}
 
 	var policyLoader engine.PolicyLoader
@@ -142,7 +142,7 @@ func Start(ctx context.Context, zpagesEnabled bool) error {
 		// create compile manager
 		compileMgr, err := compile.NewManager(ctx, ss, schemaMgr)
 		if err != nil {
-			return fmt.Errorf("failed to create compile manager: %w", err)
+			return fmt.Errorf("[ERR-398] failed to create compile manager: %w", err)
 		}
 		policyLoader = compileMgr
 	} else {
@@ -156,13 +156,13 @@ func Start(ctx context.Context, zpagesEnabled bool) error {
 		AuditLog:     auditLog,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create engine: %w", err)
+		return fmt.Errorf("[ERR-399] failed to create engine: %w", err)
 	}
 
 	// initialize aux data
 	auxData, err := auxdata.New(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to initialize auxData handler: %w", err)
+		return fmt.Errorf("[ERR-400] failed to initialize auxData handler: %w", err)
 	}
 
 	s := NewServer(conf)
@@ -217,32 +217,32 @@ func (s *Server) Start(ctx context.Context, param Param) error {
 
 	grpcL, err := s.createListener(s.conf.GRPCListenAddr)
 	if err != nil {
-		log.Error("Failed to create gRPC listener", zap.Error(err))
+		log.Error("[ERR-401] Failed to create gRPC listener", zap.Error(err))
 		return err
 	}
 
 	httpL, err := s.createListener(s.conf.HTTPListenAddr)
 	if err != nil {
-		log.Error("Failed to create HTTP listener", zap.Error(err))
+		log.Error("[ERR-402] Failed to create HTTP listener", zap.Error(err))
 		return err
 	}
 
 	// start servers
 	grpcServer, err := s.startGRPCServer(grpcL, param)
 	if err != nil {
-		log.Error("Failed to start GRPC server", zap.Error(err))
+		log.Error("[ERR-403] Failed to start GRPC server", zap.Error(err))
 		return err
 	}
 
 	httpServer, err := s.startHTTPServer(ctx, httpL, grpcServer, param.ZPagesEnabled)
 	if err != nil {
-		log.Error("Failed to start HTTP server", zap.Error(err))
+		log.Error("[ERR-404] Failed to start HTTP server", zap.Error(err))
 		return err
 	}
 
 	s.group.Go(func() error {
 		<-ctx.Done()
-		log.Info("Shutting down")
+		log.Info("[ERR-405] Shutting down")
 
 		// mark this service as NOT_SERVING in the gRPC health check.
 		s.health.Shutdown()
@@ -255,19 +255,19 @@ func (s *Server) Start(ctx context.Context, param Param) error {
 		defer cancelFunc()
 
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			log.Error("Failed to cleanly shutdown HTTP server", zap.Error(err))
+			log.Error("[ERR-406] Failed to cleanly shutdown HTTP server", zap.Error(err))
 		}
 
 		log.Debug("Shutting down the audit log")
 		param.AuditLog.Close()
 
-		log.Info("Shutdown complete")
+		log.Info("[ERR-407] Shutdown complete")
 		return nil
 	})
 
 	err = s.group.Wait()
 	if err != nil {
-		log.Error("Stopping server due to error", zap.Error(err))
+		log.Error("[ERR-408] Stopping server due to error", zap.Error(err))
 		return err
 	}
 
@@ -277,7 +277,7 @@ func (s *Server) Start(ctx context.Context, param Param) error {
 func (s *Server) createListener(listenAddr string) (net.Listener, error) {
 	l, err := s.parseAndOpen(listenAddr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create listener at '%s': %w", listenAddr, err)
+		return nil, fmt.Errorf("[ERR-409] failed to create listener at '%s': %w", listenAddr, err)
 	}
 
 	tlsConf, err := s.getTLSConfig()
@@ -302,7 +302,7 @@ func (s *Server) getTLSConfig() (*tls.Config, error) {
 
 	certificate, err := tls.LoadX509KeyPair(conf.Cert, conf.Key)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load certificate and key: %w", err)
+		return nil, fmt.Errorf("[ERR-410] failed to load certificate and key: %w", err)
 	}
 
 	tlsConfig := util.DefaultTLSConfig()
@@ -317,12 +317,12 @@ func (s *Server) getTLSConfig() (*tls.Config, error) {
 		certPool := x509.NewCertPool()
 		bs, err := os.ReadFile(conf.CACert)
 		if err != nil {
-			return nil, fmt.Errorf("failed to load CA certificate: %w", err)
+			return nil, fmt.Errorf("[ERR-411] failed to load CA certificate: %w", err)
 		}
 
 		ok := certPool.AppendCertsFromPEM(bs)
 		if !ok {
-			return nil, errors.New("failed to append certificates to the pool")
+			return nil, errors.New("[ERR-412] failed to append certificates to the pool")
 		}
 
 		tlsConfig.ClientAuth = tls.VerifyClientCertIfGiven
@@ -336,7 +336,7 @@ func (s *Server) startGRPCServer(l net.Listener, param Param) (*grpc.Server, err
 	log := zap.L().Named("grpc")
 	server, err := s.mkGRPCServer(log, param.AuditLog)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create gRPC server: %w", err)
+		return nil, fmt.Errorf("[ERR-413] failed to create gRPC server: %w", err)
 	}
 
 	healthpb.RegisterHealthServer(server, s.health)
@@ -352,12 +352,12 @@ func (s *Server) startGRPCServer(l net.Listener, param Param) (*grpc.Server, err
 	s.health.SetServingStatus(svcv1.CerbosService_ServiceDesc.ServiceName, healthpb.HealthCheckResponse_SERVING)
 
 	if s.conf.AdminAPI.Enabled {
-		log.Info("Starting admin service")
+		log.Info("[ERR-414] Starting admin service")
 		creds := s.conf.AdminAPI.AdminCredentials
 
 		adminUser, adminPasswdHash, err := creds.usernameAndPasswordHash()
 		if err != nil {
-			log.Error("Failed to get admin API credentials", zap.Error(err))
+			log.Error("[ERR-415] Failed to get admin API credentials", zap.Error(err))
 			return nil, err
 		}
 
@@ -368,7 +368,7 @@ func (s *Server) startGRPCServer(l net.Listener, param Param) (*grpc.Server, err
 	}
 
 	if s.conf.PlaygroundEnabled {
-		log.Info("Starting playground service")
+		log.Info("[ERR-416] Starting playground service")
 		svcv1.RegisterCerbosPlaygroundServiceServer(server, svc.NewCerbosPlaygroundService(reqLimits))
 		s.health.SetServingStatus(svcv1.CerbosPlaygroundService_ServiceDesc.ServiceName, healthpb.HealthCheckResponse_SERVING)
 	}
@@ -378,17 +378,17 @@ func (s *Server) startGRPCServer(l net.Listener, param Param) (*grpc.Server, err
 
 		cleanup, err := admin.Register(server)
 		if err != nil {
-			log.Error("Failed to register gRPC admin interfaces", zap.Error(err))
+			log.Error("[ERR-417] Failed to register gRPC admin interfaces", zap.Error(err))
 			return err
 		}
 		defer cleanup()
 
 		if err := server.Serve(l); err != nil {
-			log.Error("gRPC server failed", zap.Error(err))
+			log.Error("[ERR-418] gRPC server failed", zap.Error(err))
 			return err
 		}
 
-		log.Info("gRPC server stopped")
+		log.Info("[ERR-419] gRPC server stopped")
 		return nil
 	})
 
@@ -398,9 +398,9 @@ func (s *Server) startGRPCServer(l net.Listener, param Param) (*grpc.Server, err
 func checkForUnsafeAdminCredentials(log *zap.Logger, passwordHash []byte) {
 	unsafe, err := adminCredentialsAreUnsafe(passwordHash)
 	if err != nil {
-		log.Error("Failed to check admin API credentials", zap.Error(err))
+		log.Error("[ERR-420] Failed to check admin API credentials", zap.Error(err))
 	} else if unsafe {
-		log.Warn("[SECURITY RISK] Admin API uses default credentials which are unsafe for production use. Please change the credentials by updating the configuration file.")
+		log.Warn("[ERR-421] [SECURITY RISK] Admin API uses default credentials which are unsafe for production use. Please change the credentials by updating the configuration file.")
 	}
 }
 
@@ -410,7 +410,7 @@ func (s *Server) mkGRPCServer(log *zap.Logger, auditLog audit.Log) (*grpc.Server
 
 	auditInterceptor, err := audit.NewUnaryInterceptor(auditLog, accessLogExclude)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create audit unary interceptor: %w", err)
+		return nil, fmt.Errorf("[ERR-422] failed to create audit unary interceptor: %w", err)
 	}
 
 	opts := []grpc.ServerOption{
@@ -471,13 +471,13 @@ func (s *Server) startHTTPServer(ctx context.Context, l net.Listener, grpcSrv *g
 
 	if err := svcv1.RegisterCerbosServiceHandler(ctx, gwmux, grpcConn); err != nil {
 		log.Errorw("Failed to register Cerbos HTTP service", "error", err)
-		return nil, fmt.Errorf("failed to register Cerbos HTTP service: %w", err)
+		return nil, fmt.Errorf("[ERR-423] failed to register Cerbos HTTP service: %w", err)
 	}
 
 	if s.conf.AdminAPI.Enabled {
 		if err := svcv1.RegisterCerbosAdminServiceHandler(ctx, gwmux, grpcConn); err != nil {
 			log.Errorw("Failed to register Cerbos admin HTTP service", "error", err)
-			return nil, fmt.Errorf("failed to register Cerbos admin HTTP service: %w", err)
+			return nil, fmt.Errorf("[ERR-424] failed to register Cerbos admin HTTP service: %w", err)
 		}
 	}
 
@@ -523,14 +523,14 @@ func (s *Server) startHTTPServer(ctx context.Context, l net.Listener, grpcSrv *g
 	}
 
 	s.group.Go(func() error {
-		log.Infof("Starting HTTP server at %s", s.conf.HTTPListenAddr)
+		log.Infof("[ERR-425] Starting HTTP server at %s", s.conf.HTTPListenAddr)
 		err := h.Serve(l)
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Errorw("HTTP server failed", "error", err)
 			return err
 		}
 
-		log.Info("HTTP server stopped")
+		log.Info("[ERR-426] HTTP server stopped")
 		return nil
 	})
 
@@ -551,7 +551,7 @@ func (s *Server) mkGRPCConn(ctx context.Context) (*grpc.ClientConn, error) {
 
 	tlsConf, err := s.getTLSConfig()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create TLS config: %w", err)
+		return nil, fmt.Errorf("[ERR-427] failed to create TLS config: %w", err)
 	}
 
 	if tlsConf != nil {
@@ -563,7 +563,7 @@ func (s *Server) mkGRPCConn(ctx context.Context) (*grpc.ClientConn, error) {
 
 	grpcConn, err := grpc.DialContext(ctx, s.conf.GRPCListenAddr, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to dial gRPC: %w", err)
+		return nil, fmt.Errorf("[ERR-428] failed to dial gRPC: %w", err)
 	}
 
 	return grpcConn, nil
@@ -590,7 +590,7 @@ func (s *Server) parseAndOpen(listenAddr string) (net.Listener, error) {
 		if s.conf.UDSFileMode != defaultUDSFileMode {
 			fileMode := toUDSFileMode(s.conf.UDSFileMode)
 			if err := os.Chmod(addr, fileMode); err != nil {
-				return nil, fmt.Errorf("failed to change file mode of %q to %O: %w", addr, fileMode, err)
+				return nil, fmt.Errorf("[ERR-429] failed to change file mode of %q to %O: %w", addr, fileMode, err)
 			}
 		}
 
@@ -619,15 +619,15 @@ func initOCPromExporter(conf *Conf) (*prometheus.Exporter, error) {
 	}
 
 	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
-		return nil, fmt.Errorf("failed to register gRPC server views: %w", err)
+		return nil, fmt.Errorf("[ERR-430] failed to register gRPC server views: %w", err)
 	}
 
 	if err := view.Register(ochttp.DefaultServerViews...); err != nil {
-		return nil, fmt.Errorf("failed to register HTTP server views: %w", err)
+		return nil, fmt.Errorf("[ERR-431] failed to register HTTP server views: %w", err)
 	}
 
 	if err := view.Register(metrics.DefaultCerbosViews...); err != nil {
-		return nil, fmt.Errorf("failed to register Cerbos views: %w", err)
+		return nil, fmt.Errorf("[ERR-432] failed to register Cerbos views: %w", err)
 	}
 
 	registry, ok := prom.DefaultRegisterer.(*prom.Registry)
@@ -637,7 +637,7 @@ func initOCPromExporter(conf *Conf) (*prometheus.Exporter, error) {
 
 	exporter, err := prometheus.NewExporter(prometheus.Options{Registry: registry})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Prometheus exporter: %w", err)
+		return nil, fmt.Errorf("[ERR-433] failed to create Prometheus exporter: %w", err)
 	}
 
 	view.RegisterExporter(exporter)

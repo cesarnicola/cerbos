@@ -79,12 +79,12 @@ func (c *Cmd) Run() error {
 	confOverrides := map[string]any{}
 	for _, override := range c.Set {
 		if err := strvals.ParseInto(override, confOverrides); err != nil {
-			return fmt.Errorf("failed to parse config override [%s]: %w", override, err)
+			return fmt.Errorf("[ERR-148] failed to parse config override [%s]: %w", override, err)
 		}
 	}
 
 	// load configuration
-	log.Infof("Loading configuration from %s", c.Config)
+	log.Infof("[ERR-149] Loading configuration from %s", c.Config)
 	if err := config.Load(c.Config, confOverrides); err != nil {
 		log.Errorw("Failed to load configuration", "error", err)
 		return err
@@ -104,7 +104,7 @@ func (c *Cmd) Help() string {
 
 func startDebugListener(listenAddr string) {
 	log := zap.S().Named("debug")
-	log.Infof("Starting debug listener at %s", listenAddr)
+	log.Infof("[ERR-150] Starting debug listener at %s", listenAddr)
 
 	err := agent.Listen(agent.Options{
 		Addr:                   listenAddr,

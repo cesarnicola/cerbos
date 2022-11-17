@@ -56,7 +56,7 @@ type templateHelper struct {
 func (th *templateHelper) FileBytes(relPath string) []byte {
 	b, err := fs.ReadFile(th.fsys, relPath)
 	if err != nil {
-		panic(fmt.Errorf("failed to read file %q: %w", relPath, err))
+		panic(fmt.Errorf("[ERR-614] failed to read file %q: %w", relPath, err))
 	}
 	return b
 }
@@ -72,7 +72,7 @@ func (th *templateHelper) ToPolicyJSON(p *policyv1.Policy) string {
 func (th *templateHelper) ReadPolicy(relPath string) *policyv1.Policy {
 	p, err := policy.ReadPolicyFromFile(th.fsys, relPath)
 	if err != nil {
-		panic(fmt.Errorf("failed to read policy from %q: %w", relPath, err))
+		panic(fmt.Errorf("[ERR-615] failed to read policy from %q: %w", relPath, err))
 	}
 
 	return p

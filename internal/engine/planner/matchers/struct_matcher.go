@@ -22,7 +22,7 @@ func (m *exprMatcher) run(e *exprpb.Expr) (bool, error) {
 	r, args := m.f(e)
 	if r {
 		if len(args) != len(m.ns) {
-			return false, errors.New("number of matchers != number of arguments")
+			return false, errors.New("[ERR-323] number of matchers != number of arguments")
 		}
 		for i, arg := range args {
 			if r, err := m.ns[i].run(arg); !r || err != nil {

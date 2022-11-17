@@ -44,13 +44,13 @@ var (
 	_ storage.Reloadable  = (*Store)(nil)
 )
 
-var ErrUnsupportedBucketScheme = errors.New("currently only \"s3\" and \"gs\" bucket URL schemes are supported")
+var ErrUnsupportedBucketScheme = errors.New("[ERR-442] currently only \"s3\" and \"gs\" bucket URL schemes are supported")
 
 func init() {
 	storage.RegisterDriver(DriverName, func(ctx context.Context, confW *config.Wrapper) (storage.Store, error) {
 		conf := new(Conf)
 		if err := confW.GetSection(conf); err != nil {
-			return nil, fmt.Errorf("failed to read blob configuration: %w", err)
+			return nil, fmt.Errorf("[ERR-443] failed to read blob configuration: %w", err)
 		}
 
 		bucket, err := newBucket(ctx, conf)
@@ -74,7 +74,7 @@ func init() {
 func newBucket(ctx context.Context, conf *Conf) (*blob.Bucket, error) {
 	u, err := url.Parse(conf.Bucket)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse bucket URL %q: %w", conf.Bucket, err)
+		return nil, fmt.Errorf("[ERR-444] failed to parse bucket URL %q: %w", conf.Bucket, err)
 	}
 	var bucket *blob.Bucket
 	switch u.Scheme {
@@ -99,11 +99,11 @@ func newBucket(ctx context.Context, conf *Conf) (*blob.Bucket, error) {
 func openGSBucket(ctx context.Context, conf *Conf, bucketURL *url.URL) (*blob.Bucket, error) {
 	creds, err := gcp.DefaultCredentials(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not get default GCP credentials: %w", err)
+		return nil, fmt.Errorf("[ERR-445] could not get default GCP credentials: %w", err)
 	}
 	client, err := gcp.NewHTTPClient(gcp.DefaultTransport(), creds.TokenSource)
 	if err != nil {
-		return nil, fmt.Errorf("could not create gcp HTTP client: %w", err)
+		return nil, fmt.Errorf("[ERR-446] could not create gcp HTTP client: %w", err)
 	}
 	client.Timeout = *conf.RequestTimeout
 	opener := gcsblob.URLOpener{Client: client}
@@ -134,16 +134,16 @@ func validateOrCreateWorkDir(workDir string) error {
 	fileInfo, err := os.Stat(workDir)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			return fmt.Errorf("failed to stat workDir %q: %w", workDir, err)
+			return fmt.Errorf("[ERR-447] failed to stat workDir %q: %w", workDir, err)
 		}
 
 		if err := os.MkdirAll(workDir, 0o744); err != nil { //nolint:gomnd
-			return fmt.Errorf("failed to create workDir %q: %w", workDir, err)
+			return fmt.Errorf("[ERR-448] failed to create workDir %q: %w", workDir, err)
 		}
 	}
 
 	if fileInfo != nil && !fileInfo.IsDir() {
-		return fmt.Errorf("workDir is not a directory: %s", workDir)
+		return fmt.Errorf("[ERR-449] workDir is not a directory: %s", workDir)
 	}
 
 	return nil
@@ -182,7 +182,7 @@ func NewStore(ctx context.Context, conf *Conf, cloner bucketCloner) (*Store, err
 	return s, nil
 }
 
-var ErrPartialFailureToDownloadOnInit = errors.New("failed to download some files from the bucket")
+var ErrPartialFailureToDownloadOnInit = errors.New("[ERR-450] failed to download some files from the bucket")
 
 func (s *Store) init(ctx context.Context) error {
 	s.fsys = os.DirFS(s.conf.WorkDir)
@@ -337,7 +337,7 @@ func (s *Store) RepoStats(ctx context.Context) storage.RepoStats {
 func (s *Store) Reload(ctx context.Context) error {
 	changes, err := s.clone(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to clone: %w", err)
+		return fmt.Errorf("[ERR-451] failed to clone: %w", err)
 	}
 
 	if failures := changes.failures(); failures > 0 {
@@ -346,7 +346,7 @@ func (s *Store) Reload(ctx context.Context) error {
 
 	evts, err := s.idx.Reload(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to reload the index: %w", err)
+		return fmt.Errorf("[ERR-452] failed to reload the index: %w", err)
 	}
 
 	s.NotifySubscribers(evts...)

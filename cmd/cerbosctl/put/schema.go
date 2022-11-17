@@ -37,7 +37,7 @@ type SchemaCmd struct {
 
 func (sc *SchemaCmd) Run(k *kong.Kong, put *Cmd, ctx *cmdclient.Context) error {
 	if len(sc.Paths) == 0 {
-		return fmt.Errorf("no filename(s) provided")
+		return fmt.Errorf("[ERR-191] no filename(s) provided")
 	}
 
 	schemas := client.NewSchemaSet()
@@ -56,7 +56,7 @@ func (sc *SchemaCmd) Run(k *kong.Kong, put *Cmd, ctx *cmdclient.Context) error {
 
 	err = ctx.AdminClient.AddOrUpdateSchema(context.TODO(), schemas)
 	if err != nil {
-		return fmt.Errorf("failed to add or update the schemas: %w", err)
+		return fmt.Errorf("[ERR-192] failed to add or update the schemas: %w", err)
 	}
 
 	_, _ = fmt.Fprintf(k.Stdout, "Uploaded: %d\nIgnored: %d\n", schemas.Size(), len(errs))

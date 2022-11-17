@@ -55,19 +55,19 @@ func init() {
 
 func NewStore(ctx context.Context, conf *Conf) (*Store, error) {
 	log := logging.FromContext(ctx).Named("sqlite3")
-	log.Info("Initializing sqlite3 storage", zap.String("DSN", conf.DSN))
+	log.Info("[ERR-495] Initializing sqlite3 storage", zap.String("DSN", conf.DSN))
 
 	db, err := sqlx.Connect("sqlite", conf.DSN)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return nil, fmt.Errorf("[ERR-496] failed to open database: %w", err)
 	}
 
 	if _, err := db.ExecContext(ctx, schema, nil); err != nil {
-		return nil, fmt.Errorf("failed to create schema: %w", err)
+		return nil, fmt.Errorf("[ERR-497] failed to create schema: %w", err)
 	}
 
 	if err := runMigrations(db.DB); err != nil {
-		return nil, fmt.Errorf("failed to migrate schema: %w", err)
+		return nil, fmt.Errorf("[ERR-498] failed to migrate schema: %w", err)
 	}
 
 	storage, err := internal.NewDBStorage(ctx, goqu.New("sqlite3", db))

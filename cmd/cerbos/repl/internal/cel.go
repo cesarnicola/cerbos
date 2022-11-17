@@ -54,7 +54,7 @@ func getCheckInput(vars variables) (*enginev1.CheckInput, error) {
 
 	vv, ok := v.Value().(*enginev1.CheckInput)
 	if !ok {
-		return nil, fmt.Errorf("unexpected type %T for %q", v.Value(), conditions.CELRequestIdent)
+		return nil, fmt.Errorf("[ERR-117] unexpected type %T for %q", v.Value(), conditions.CELRequestIdent)
 	}
 
 	return vv, nil

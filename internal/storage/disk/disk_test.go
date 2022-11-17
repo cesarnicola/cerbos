@@ -40,12 +40,12 @@ func mkDeleteFn(t *testing.T, storeDir string) internal.MutateStoreFn {
 	return func() error {
 		dir, err := os.ReadDir(storeDir)
 		if err != nil {
-			return fmt.Errorf("failed to read directory while deleting from the store: %w", err)
+			return fmt.Errorf("[ERR-516] failed to read directory while deleting from the store: %w", err)
 		}
 		for _, d := range dir {
 			err = os.RemoveAll(path.Join([]string{storeDir, d.Name()}...))
 			if err != nil {
-				return fmt.Errorf("failed to remove contents while deleting from the store: %w", err)
+				return fmt.Errorf("[ERR-517] failed to remove contents while deleting from the store: %w", err)
 			}
 		}
 

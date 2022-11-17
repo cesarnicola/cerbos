@@ -79,11 +79,11 @@ func (c *Cmd) Run(k *kong.Kong, ctx *cmdclient.Context) error {
 
 	logs, err := ctx.AdminClient.AuditLogs(context.Background(), logOptions)
 	if err != nil {
-		return fmt.Errorf("could not get decision logs: %w", err)
+		return fmt.Errorf("[ERR-151] could not get decision logs: %w", err)
 	}
 
 	if err = streamLogsToWriter(writer, logs); err != nil {
-		return fmt.Errorf("could not write decision logs: %w", err)
+		return fmt.Errorf("[ERR-152] could not write decision logs: %w", err)
 	}
 	return nil
 }
@@ -100,7 +100,7 @@ func streamLogsToWriter(writer auditLogWriter, entries <-chan *client.AuditLogEn
 	for e := range entries {
 		aLog, err := e.AccessLog()
 		if err != nil {
-			return fmt.Errorf("error while receiving access logs: %w", err)
+			return fmt.Errorf("[ERR-153] error while receiving access logs: %w", err)
 		}
 		if aLog != nil {
 			if err := writer.write(aLog); err != nil {
@@ -111,7 +111,7 @@ func streamLogsToWriter(writer auditLogWriter, entries <-chan *client.AuditLogEn
 
 		dLog, err := e.DecisionLog()
 		if err != nil {
-			return fmt.Errorf("error while receiving decision logs: %w", err)
+			return fmt.Errorf("[ERR-154] error while receiving decision logs: %w", err)
 		}
 		if dLog != nil {
 			if err := writer.write(dLog); err != nil {

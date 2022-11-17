@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	ErrIteratorClosed = errors.New("iterator closed")
+	ErrIteratorClosed = errors.New("[ERR-245] iterator closed")
 
 	backendsMu sync.RWMutex
 	backends   = map[string]Constructor{}
@@ -69,7 +69,7 @@ func NewLog(ctx context.Context) (Log, error) {
 func NewLogFromConf(ctx context.Context, confW *config.Wrapper) (Log, error) {
 	conf := new(Conf)
 	if err := confW.GetSection(conf); err != nil {
-		return nil, fmt.Errorf("failed to read audit configuration: %w", err)
+		return nil, fmt.Errorf("[ERR-246] failed to read audit configuration: %w", err)
 	}
 
 	if !conf.Enabled {
@@ -81,12 +81,12 @@ func NewLogFromConf(ctx context.Context, confW *config.Wrapper) (Log, error) {
 	backendsMu.RUnlock()
 
 	if !ok {
-		return nil, fmt.Errorf("unknown backend [%s]", conf.Backend)
+		return nil, fmt.Errorf("[ERR-247] unknown backend [%s]", conf.Backend)
 	}
 
 	backend, err := cons(ctx, confW)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create backend: %w", err)
+		return nil, fmt.Errorf("[ERR-248] failed to create backend: %w", err)
 	}
 
 	lw := &logWrapper{conf: conf, backend: backend}

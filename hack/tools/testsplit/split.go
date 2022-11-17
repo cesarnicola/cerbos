@@ -62,13 +62,13 @@ func readTestTimes() (testTimesByKind, error) {
 		if errors.Is(err, os.ErrNotExist) {
 			return testTimesByKind{}, nil
 		}
-		return nil, fmt.Errorf("failed to read test times: %w", err)
+		return nil, fmt.Errorf("[ERR-222] failed to read test times: %w", err)
 	}
 
 	var result testTimesByKind
 	err = json.Unmarshal(data, &result)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal test times: %w", err)
+		return nil, fmt.Errorf("[ERR-223] failed to unmarshal test times: %w", err)
 	}
 
 	return result, nil
@@ -91,7 +91,7 @@ func (pkgs packageSet) Packages() []string {
 func listPackages() (packageSet, error) {
 	packages, err := packages.Load(&packages.Config{Mode: packages.NeedName}, "./...")
 	if err != nil {
-		return nil, fmt.Errorf("failed to list Go packages: %w", err)
+		return nil, fmt.Errorf("[ERR-224] failed to list Go packages: %w", err)
 	}
 
 	result := make(packageSet, len(packages))

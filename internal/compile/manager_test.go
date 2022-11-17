@@ -85,7 +85,7 @@ func TestManager(t *testing.T) {
 
 		rp := policy.Wrap(test.GenResourcePolicy(test.NoMod()))
 
-		wantErr := errors.New("oh no")
+		wantErr := errors.New("[ERR-278] oh no")
 		mockStore.
 			On("GetCompilationUnits", mock.MatchedBy(anyCtx), []namer.ModuleID{rp.ID}).
 			Return(nil, wantErr).
@@ -183,7 +183,7 @@ func TestManager(t *testing.T) {
 					},
 				}, nil
 			default:
-				panic(fmt.Errorf("unexpected number of calls: %d", gcuInvocationCount))
+				panic(fmt.Errorf("[ERR-279] unexpected number of calls: %d", gcuInvocationCount))
 			}
 		}
 
@@ -266,7 +266,7 @@ func (ms *MockStore) GetCompilationUnits(ctx context.Context, ids ...namer.Modul
 	case func() (map[namer.ModuleID]*policy.CompilationUnit, error):
 		return t()
 	default:
-		panic(fmt.Errorf("unknown return value type: %T", res))
+		panic(fmt.Errorf("[ERR-280] unknown return value type: %T", res))
 	}
 }
 

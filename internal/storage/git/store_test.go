@@ -532,7 +532,7 @@ func mkDeleteFn(t *testing.T, sourceGitDir string) internal.MutateStoreFn {
 		err := commitToGitRepo(sourceGitDir, "Delete all", func(wt *git.Worktree) error {
 			dir, err := os.ReadDir(sourceGitDir)
 			if err != nil {
-				return fmt.Errorf("failed to read directory while deleting from the store: %w", err)
+				return fmt.Errorf("[ERR-546] failed to read directory while deleting from the store: %w", err)
 			}
 
 			for _, d := range dir {
@@ -541,7 +541,7 @@ func mkDeleteFn(t *testing.T, sourceGitDir string) internal.MutateStoreFn {
 				}
 				err = os.RemoveAll(path.Join([]string{sourceGitDir, d.Name()}...))
 				if err != nil {
-					return fmt.Errorf("failed to remove contents while deleting from the store: %w", err)
+					return fmt.Errorf("[ERR-547] failed to remove contents while deleting from the store: %w", err)
 				}
 			}
 
@@ -708,7 +708,7 @@ func writePolicySet(dir string, pset policySet) error {
 func writePolicy(path string, p *policyv1.Policy) error {
 	f, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("failed to create file %s: %w", path, err)
+		return fmt.Errorf("[ERR-548] failed to create file %s: %w", path, err)
 	}
 
 	defer f.Close()
@@ -725,7 +725,7 @@ func mkFileName(p *policyv1.Policy) string {
 	case *policyv1.Policy_DerivedRoles:
 		return fmt.Sprintf("%s.yaml", pt.DerivedRoles.Name)
 	default:
-		panic(fmt.Errorf("unknown policy type %T", pt))
+		panic(fmt.Errorf("[ERR-549] unknown policy type %T", pt))
 	}
 }
 
@@ -749,7 +749,7 @@ func copySchemas(t *testing.T, dir string) {
 
 		in, err := os.Open(path)
 		if err != nil {
-			return fmt.Errorf("failed to open %s: %w", path, err)
+			return fmt.Errorf("[ERR-550] failed to open %s: %w", path, err)
 		}
 		defer in.Close()
 
@@ -760,7 +760,7 @@ func copySchemas(t *testing.T, dir string) {
 
 		out, err := os.Create(outFile)
 		if err != nil {
-			return fmt.Errorf("failed to create %s: %w", outFile, err)
+			return fmt.Errorf("[ERR-551] failed to create %s: %w", outFile, err)
 		}
 		defer out.Close()
 
@@ -774,16 +774,16 @@ func copySchemas(t *testing.T, dir string) {
 func commitToGitRepo(dir, msg string, work func(*git.Worktree) error) error {
 	repo, err := git.PlainOpen(dir)
 	if err != nil {
-		return fmt.Errorf("failed to open Git repo: %w", err)
+		return fmt.Errorf("[ERR-552] failed to open Git repo: %w", err)
 	}
 
 	wt, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("failed to get worktree: %w", err)
+		return fmt.Errorf("[ERR-553] failed to get worktree: %w", err)
 	}
 
 	if err := work(wt); err != nil {
-		return fmt.Errorf("failed to do work: %w", err)
+		return fmt.Errorf("[ERR-554] failed to do work: %w", err)
 	}
 
 	if _, err := wt.Commit(msg, &git.CommitOptions{
@@ -794,7 +794,7 @@ func commitToGitRepo(dir, msg string, work func(*git.Worktree) error) error {
 			When:  time.Now(),
 		},
 	}); err != nil {
-		return fmt.Errorf("failed to commit: %w", err)
+		return fmt.Errorf("[ERR-555] failed to commit: %w", err)
 	}
 
 	return nil

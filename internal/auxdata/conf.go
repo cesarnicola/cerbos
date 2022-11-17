@@ -70,35 +70,35 @@ func (c *Conf) Validate() (errs error) {
 	idSet := make(map[string]struct{}, len(c.JWT.KeySets))
 	for _, ks := range c.JWT.KeySets {
 		if _, ok := idSet[ks.ID]; ok {
-			errs = multierr.Append(errs, fmt.Errorf("duplicate keyset id '%s'", ks.ID))
+			errs = multierr.Append(errs, fmt.Errorf("[ERR-249] duplicate keyset id '%s'", ks.ID))
 			continue
 		}
 
 		idSet[ks.ID] = struct{}{}
 
 		if ks.Remote == nil && ks.Local == nil {
-			errs = multierr.Append(errs, fmt.Errorf("keyset '%s': should have one of `local` or `remote` defined", ks.ID))
+			errs = multierr.Append(errs, fmt.Errorf("[ERR-250] keyset '%s': should have one of `local` or `remote` defined", ks.ID))
 			continue
 		}
 
 		if ks.Remote != nil && ks.Local != nil {
-			errs = multierr.Append(errs, fmt.Errorf("keyset '%s': only one of `local` or `remote` should be defined", ks.ID))
+			errs = multierr.Append(errs, fmt.Errorf("[ERR-251] keyset '%s': only one of `local` or `remote` should be defined", ks.ID))
 			continue
 		}
 
 		if ks.Remote != nil && ks.Remote.URL == "" {
-			errs = multierr.Append(errs, fmt.Errorf("keyset '%s': remote URL is empty", ks.ID))
+			errs = multierr.Append(errs, fmt.Errorf("[ERR-252] keyset '%s': remote URL is empty", ks.ID))
 			continue
 		}
 
 		if l := ks.Local; l != nil {
 			if l.Data == "" && l.File == "" {
-				errs = multierr.Append(errs, fmt.Errorf("keyset '%s': at least one of 'local.data' or 'local.file' must be defined", ks.ID))
+				errs = multierr.Append(errs, fmt.Errorf("[ERR-253] keyset '%s': at least one of 'local.data' or 'local.file' must be defined", ks.ID))
 				continue
 			}
 
 			if l.Data != "" && l.File != "" {
-				errs = multierr.Append(errs, fmt.Errorf("keyset '%s': only one of 'loca.data' or 'local.file' must be defined", ks.ID))
+				errs = multierr.Append(errs, fmt.Errorf("[ERR-254] keyset '%s': only one of 'loca.data' or 'local.file' must be defined", ks.ID))
 			}
 		}
 	}

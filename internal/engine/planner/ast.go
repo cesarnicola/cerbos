@@ -52,7 +52,7 @@ const (
 	Lambda             = "lambda"
 )
 
-var ErrUnknownOperator = errors.New("unknown operator")
+var ErrUnknownOperator = errors.New("[ERR-312] unknown operator")
 
 func opFromCLE(fn string) (string, error) {
 	switch fn {
@@ -107,7 +107,7 @@ func replaceVars(e *exprpb.Expr, vars map[string]*exprpb.Expr) (output *exprpb.E
 					//nolint:forcetypeassert
 					return proto.Clone(v).(*exprpb.Expr)
 				}
-				err = multierr.Append(err, fmt.Errorf("unknown variable %q", e.SelectExpr.Field))
+				err = multierr.Append(err, fmt.Errorf("[ERR-313] unknown variable %q", e.SelectExpr.Field))
 			} else {
 				e.SelectExpr.Operand = r(e.SelectExpr.Operand)
 			}
@@ -140,7 +140,7 @@ func replaceVars(e *exprpb.Expr, vars map[string]*exprpb.Expr) (output *exprpb.E
 
 	output, ok := proto.Clone(e).(*exprpb.Expr)
 	if !ok {
-		return nil, fmt.Errorf("failed to clone an expression: %v", e)
+		return nil, fmt.Errorf("[ERR-314] failed to clone an expression: %v", e)
 	}
 	output = r(output)
 	internal.UpdateIds(output)
@@ -186,10 +186,10 @@ func convert(expr *enginev1.PlanResourcesAst_Node, acc *enginev1.PlanResourcesFi
 			operation = Not
 		default:
 			if name, ok := enginev1.PlanResourcesAst_LogicalOperation_Operator_name[int32(node.LogicalOperation.Operator)]; ok {
-				return fmt.Errorf("unknown logical operator: %v", name)
+				return fmt.Errorf("[ERR-315] unknown logical operator: %v", name)
 			}
 
-			return fmt.Errorf("unknown logical operator: %v", node.LogicalOperation.Operator)
+			return fmt.Errorf("[ERR-316] unknown logical operator: %v", node.LogicalOperation.Operator)
 		}
 		acc.Node = mkExprOpExpr(operation, operands...)
 	}
@@ -423,7 +423,7 @@ func buildExprImpl(cur *exprpb.Expr, acc *enginev1.PlanResourcesFilter_Expressio
 			return err
 		}
 		if _, ok := lambda.Node.(*ExprOpExpr); !ok {
-			return fmt.Errorf("expected expression, got %T", lambda.Node)
+			return fmt.Errorf("[ERR-317] expected expression, got %T", lambda.Node)
 		}
 		op := new(ExprOp)
 		err = buildExprImpl(iterRange, op, cur)
@@ -433,7 +433,7 @@ func buildExprImpl(cur *exprpb.Expr, acc *enginev1.PlanResourcesFilter_Expressio
 
 		acc.Node = mkExprOpExpr(lambdaAst.operator, op, &ExprOp{Node: mkExprOpExpr(Lambda, lambda, &ExprOp{Node: &ExprOpVar{Variable: lambdaAst.iterVar}})})
 	default:
-		return fmt.Errorf("buildExprImpl: unsupported expression: %v", expr)
+		return fmt.Errorf("[ERR-318] buildExprImpl: unsupported expression: %v", expr)
 	}
 
 	return nil
@@ -456,7 +456,7 @@ func visitConst(c *exprpb.Constant) (*structpb.Value, error) {
 	case *exprpb.Constant_Uint64Value:
 		return structpb.NewValue(v.Uint64Value)
 	default:
-		return nil, fmt.Errorf("unsupported constant: %v", c)
+		return nil, fmt.Errorf("[ERR-319] unsupported constant: %v", c)
 	}
 }
 

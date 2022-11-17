@@ -37,7 +37,7 @@ type PolicyCmd struct {
 
 func (pc *PolicyCmd) Run(k *kong.Kong, put *Cmd, ctx *cmdclient.Context) error {
 	if len(pc.Paths) == 0 {
-		return fmt.Errorf("no filename(s) provided")
+		return fmt.Errorf("[ERR-189] no filename(s) provided")
 	}
 
 	policies := client.NewPolicySet()
@@ -56,7 +56,7 @@ func (pc *PolicyCmd) Run(k *kong.Kong, put *Cmd, ctx *cmdclient.Context) error {
 
 	err = ctx.AdminClient.AddOrUpdatePolicy(context.TODO(), policies)
 	if err != nil {
-		return fmt.Errorf("failed to add or update the policies: %w", err)
+		return fmt.Errorf("[ERR-190] failed to add or update the policies: %w", err)
 	}
 
 	_, _ = fmt.Fprintf(k.Stdout, "Uploaded: %d\nIgnored: %d\n", policies.Size(), len(errs))

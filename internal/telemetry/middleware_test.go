@@ -83,7 +83,7 @@ type mockReporter struct {
 func (m *mockReporter) Report(event *telemetryv1.Event) bool {
 	apiActivity := event.GetApiActivity()
 	if apiActivity == nil {
-		panic(fmt.Errorf("unexpected event: %T", event.Data))
+		panic(fmt.Errorf("[ERR-601] unexpected event: %T", event.Data))
 	}
 
 	m.mu.Lock()

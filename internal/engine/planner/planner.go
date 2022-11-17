@@ -191,7 +191,7 @@ func (rpe *ResourcePolicyEvaluator) EvaluateResourcesQueryPlan(ctx context.Conte
 
 	vr, err := rpe.SchemaMgr.ValidatePlanResourcesInput(ctx, rpe.Policy.Schemas, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to validate input: %w", err)
+		return nil, fmt.Errorf("[ERR-324] failed to validate input: %w", err)
 	}
 
 	if len(vr.Errors) > 0 {
@@ -459,11 +459,11 @@ func evaluateCondition(condition *runtimev1.Condition, input *enginev1.PlanResou
 	case *runtimev1.Condition_Expr:
 		residual, err := evaluateConditionExpression(t.Expr.Checked, input, variables)
 		if err != nil {
-			return nil, fmt.Errorf("error evaluating condition %q: %w", t.Expr.Original, err)
+			return nil, fmt.Errorf("[ERR-325] error evaluating condition %q: %w", t.Expr.Original, err)
 		}
 		res.Node = &qpNE{Expression: residual}
 	default:
-		return nil, fmt.Errorf("unsupported condition type %T", t)
+		return nil, fmt.Errorf("[ERR-326] unsupported condition type %T", t)
 	}
 	return res, nil
 }
@@ -598,7 +598,7 @@ func evalComprehensionBodyImpl(env *cel.Env, pvars interpreter.PartialActivation
 		ce := e.ComprehensionExpr
 		loopStep, ok := ce.LoopStep.ExprKind.(*exprpb.Expr_CallExpr)
 		if !ok {
-			return errors.New("expected call expr")
+			return errors.New("[ERR-327] expected call expr")
 		}
 		var i int
 		if loopStep.CallExpr.Args[i].GetIdentExpr().GetName() == ce.AccuVar {

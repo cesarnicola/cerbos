@@ -87,7 +87,7 @@ func createSchema(db *sqlx.DB) error {
 	for s.Scan() {
 		query := s.Text()
 		if _, err := db.Exec(query); err != nil {
-			return fmt.Errorf("failed to execute [%s]: %w", query, err)
+			return fmt.Errorf("[ERR-491] failed to execute [%s]: %w", query, err)
 		}
 	}
 

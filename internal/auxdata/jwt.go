@@ -35,8 +35,8 @@ const (
 
 var (
 	cacheEntry          = struct{}{}
-	errNilLocalKeySet   = errors.New("nil local keyset")
-	errNoKeySetToVerify = errors.New("cannot determine keyset to use for validating the JWT")
+	errNilLocalKeySet   = errors.New("[ERR-255] nil local keyset")
+	errNoKeySetToVerify = errors.New("[ERR-256] cannot determine keyset to use for validating the JWT")
 )
 
 type jwtHelper struct {
@@ -65,7 +65,7 @@ func newJWTHelper(ctx context.Context, conf *JWTConf) *jwtHelper {
 				if jwkCache == nil {
 					log := logging.FromContext(ctx).Named("auxdata")
 					errSink := func(err error) {
-						log.Warn("Error refreshing keyset", zap.Error(err))
+						log.Warn("[ERR-257] Error refreshing keyset", zap.Error(err))
 					}
 
 					jwkCache = jwk.NewCache(ctx, jwk.WithErrSink(httprc.ErrSinkFunc(errSink)))
@@ -136,14 +136,14 @@ func (j *jwtHelper) parseOptions(ctx context.Context, auxJWT *requestv1.AuxData_
 	} else { // use the keyset specified in the request
 		ksDef, ok := j.keySets[auxJWT.KeySetId]
 		if !ok {
-			return nil, fmt.Errorf("keyset not found: %s", auxJWT.KeySetId)
+			return nil, fmt.Errorf("[ERR-258] keyset not found: %s", auxJWT.KeySetId)
 		}
 		ks = ksDef
 	}
 
 	jwks, err := ks.keySet(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve keyset: %w", err)
+		return nil, fmt.Errorf("[ERR-259] failed to retrieve keyset: %w", err)
 	}
 
 	return []jwt.ParseOption{jwt.WithKeySet(jwks), jwt.WithValidate(true)}, nil
@@ -152,7 +152,7 @@ func (j *jwtHelper) parseOptions(ctx context.Context, auxJWT *requestv1.AuxData_
 func (j *jwtHelper) doExtract(ctx context.Context, auxJWT *requestv1.AuxData_JWT, parseOpts []jwt.ParseOption, cacheKey string) (map[string]*structpb.Value, error) {
 	token, err := jwt.ParseString(auxJWT.Token, parseOpts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse JWT: %w", err)
+		return nil, fmt.Errorf("[ERR-260] failed to parse JWT: %w", err)
 	}
 
 	if cacheKey != "" {
@@ -218,14 +218,14 @@ func newLocalKeySet(src *LocalSource) localKeySet {
 		kbytes, err := base64.StdEncoding.DecodeString(src.Data)
 		if err != nil {
 			return func(context.Context) (jwk.Set, error) {
-				return nil, fmt.Errorf("failed to apply base64 decoder to key data: %w", err)
+				return nil, fmt.Errorf("[ERR-261] failed to apply base64 decoder to key data: %w", err)
 			}
 		}
 
 		ks, err := jwk.Parse(kbytes, jwk.WithPEM(src.PEM))
 		if err != nil {
 			return func(context.Context) (jwk.Set, error) {
-				return nil, fmt.Errorf("failed to parse key data: %w", err)
+				return nil, fmt.Errorf("[ERR-262] failed to parse key data: %w", err)
 			}
 		}
 
@@ -235,7 +235,7 @@ func newLocalKeySet(src *LocalSource) localKeySet {
 	ks, err := jwk.ReadFile(src.File, jwk.WithPEM(src.PEM))
 	if err != nil {
 		return func(context.Context) (jwk.Set, error) {
-			return nil, fmt.Errorf("failed to read keyset from '%s': %w", src.File, err)
+			return nil, fmt.Errorf("[ERR-263] failed to read keyset from '%s': %w", src.File, err)
 		}
 	}
 

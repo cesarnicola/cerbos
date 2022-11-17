@@ -16,7 +16,7 @@ import (
 	"github.com/cerbos/cerbos/internal/server"
 )
 
-var errTestValidate = errors.New("validation error")
+var errTestValidate = errors.New("[ERR-294] validation error")
 
 type Server struct {
 	TLS        *TLS   `yaml:"tls"`

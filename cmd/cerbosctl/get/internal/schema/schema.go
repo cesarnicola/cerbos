@@ -19,7 +19,7 @@ import (
 func List(k *kong.Kong, c client.AdminClient, format *flagset.Format) error {
 	schemaIds, err := c.ListSchemas(context.Background())
 	if err != nil {
-		return fmt.Errorf("error while requesting schemas: %w", err)
+		return fmt.Errorf("[ERR-178] error while requesting schemas: %w", err)
 	}
 
 	tw := printer.NewTableWriter(k.Stdout)
@@ -41,11 +41,11 @@ func Get(k *kong.Kong, c client.AdminClient, format *flagset.Format, policyIds .
 		if idx%internal.MaxIDPerReq == 0 {
 			schemas, err := c.GetSchema(context.Background(), policyIds[idx:internal.MinInt(idx+internal.MaxIDPerReq, len(policyIds)-idx)]...)
 			if err != nil {
-				return fmt.Errorf("error while requesting schema: %w", err)
+				return fmt.Errorf("[ERR-179] error while requesting schema: %w", err)
 			}
 
 			if err = printSchema(k.Stdout, schemas, format.Output); err != nil {
-				return fmt.Errorf("could not print schemas: %w", err)
+				return fmt.Errorf("[ERR-180] could not print schemas: %w", err)
 			}
 		}
 	}

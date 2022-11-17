@@ -57,7 +57,7 @@ func (m *ModuleID) Scan(src any) error {
 			return nil
 		}
 
-		return fmt.Errorf("unexpected type for module ID: %T", src)
+		return fmt.Errorf("[ERR-329] unexpected type for module ID: %T", src)
 	}
 }
 
@@ -85,7 +85,7 @@ func FQN(p *policyv1.Policy) string {
 	case *policyv1.Policy_DerivedRoles:
 		return DerivedRolesFQN(pt.DerivedRoles.Name)
 	default:
-		panic(fmt.Errorf("unknown policy type %T", pt))
+		panic(fmt.Errorf("[ERR-330] unknown policy type %T", pt))
 	}
 }
 
@@ -109,7 +109,7 @@ func FQNTree(p *policyv1.Policy) []string {
 	case *policyv1.Policy_DerivedRoles:
 		fqn = DerivedRolesFQN(pt.DerivedRoles.Name)
 	default:
-		panic(fmt.Errorf("unknown policy type %T", pt))
+		panic(fmt.Errorf("[ERR-331] unknown policy type %T", pt))
 	}
 
 	if scope == "" {
@@ -237,12 +237,12 @@ loop:
 
 			if idx == 1 {
 				if _, ok := validKinds[parts[0]]; !ok {
-					return pc, fmt.Errorf("invalid kind in policy key %q", key)
+					return pc, fmt.Errorf("[ERR-332] invalid kind in policy key %q", key)
 				}
 			}
 		case '/':
 			if idx != 2 {
-				return pc, fmt.Errorf("missing components in policy key %q", key)
+				return pc, fmt.Errorf("[ERR-333] missing components in policy key %q", key)
 			}
 			parts[idx] = key[ptr:i]
 			ptr = i + 1
@@ -251,7 +251,7 @@ loop:
 		}
 
 		if idx >= 4 {
-			return pc, fmt.Errorf("invalid policy key %q", key)
+			return pc, fmt.Errorf("[ERR-334] invalid policy key %q", key)
 		}
 	}
 
@@ -261,7 +261,7 @@ loop:
 	}
 
 	if minParts, ok := validKinds[parts[0]]; !ok || idx < minParts {
-		return pc, fmt.Errorf("invalid policy key %q", key)
+		return pc, fmt.Errorf("[ERR-335] invalid policy key %q", key)
 	}
 
 	pc.Kind = strings.ToUpper(parts[0])
@@ -282,7 +282,7 @@ func (pc PolicyCoords) FQN() string {
 	case ResourcePoliciesPrefix:
 		return ResourcePolicyFQN(pc.Name, pc.Version, pc.Scope)
 	default:
-		panic(fmt.Errorf("unknown kind %q", pc.Kind))
+		panic(fmt.Errorf("[ERR-336] unknown kind %q", pc.Kind))
 	}
 }
 

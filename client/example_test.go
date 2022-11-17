@@ -14,7 +14,7 @@ func ExampleNew() {
 	// A client that connects to Cerbos over a Unix domain socket using a CA certificate to validate the server TLS certificates.
 	c, err := client.New("unix:/var/sock/cerbos", client.WithTLSCACert("/path/to/ca.crt"))
 	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
+		log.Fatalf("[ERR-49] Failed to create client: %v", err)
 	}
 
 	allowed, err := c.IsAllowed(
@@ -24,7 +24,7 @@ func ExampleNew() {
 		"view",
 	)
 	if err != nil {
-		log.Fatalf("Failed to check permission: %v", err)
+		log.Fatalf("[ERR-50] Failed to check permission: %v", err)
 	}
 
 	log.Printf("Is Sally allowed to view album A001: %t", allowed)
@@ -34,7 +34,7 @@ func ExampleNewAdminClient() {
 	// Create an admin client using the credentials stored in environment variables or netrc.
 	ac, err := client.NewAdminClient("10.1.2.3:3593", client.WithTLSCACert("/path/to/ca.crt"))
 	if err != nil {
-		log.Fatalf("Failed to create admin client: %v", err)
+		log.Fatalf("[ERR-51] Failed to create admin client: %v", err)
 	}
 
 	policy := client.NewResourcePolicy("album:comments", "default").
@@ -51,14 +51,14 @@ func ExampleNewAdminClient() {
 		)
 
 	if err := ac.AddOrUpdatePolicy(context.TODO(), client.NewPolicySet().AddResourcePolicies(policy)); err != nil {
-		log.Fatalf("Failed to add policy: %v", err)
+		log.Fatalf("[ERR-52] Failed to add policy: %v", err)
 	}
 }
 
 func ExampleClient_CheckResources() {
 	c, err := client.New("dns:///cerbos.ns.svc.cluster.local:3593", client.WithTLSCACert("/path/to/ca.crt"))
 	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
+		log.Fatalf("[ERR-53] Failed to create client: %v", err)
 	}
 
 	cc := c.WithPrincipal(client.NewPrincipal("john").
@@ -94,7 +94,7 @@ func ExampleClient_CheckResources() {
 
 	result, err := cc.CheckResources(context.TODO(), resources)
 	if err != nil {
-		log.Fatalf("Request failed: %v", err)
+		log.Fatalf("[ERR-54] Request failed: %v", err)
 	}
 
 	resXX125 := result.GetResource("XX125", client.MatchResourcePolicyVersion("20210210"))

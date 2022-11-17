@@ -14,11 +14,11 @@ type Format struct {
 
 func (f Format) Validate(listing bool) error {
 	if !listing && f.NoHeaders {
-		return fmt.Errorf("--no-headers flag is only available when listing")
+		return fmt.Errorf("[ERR-157] --no-headers flag is only available when listing")
 	}
 
 	if listing && f.Output != OutputFormatNone {
-		return fmt.Errorf("--output flag is only available when retrieving a specific policy")
+		return fmt.Errorf("[ERR-158] --output flag is only available when retrieving a specific policy")
 	}
 
 	return nil

@@ -16,14 +16,14 @@ import (
 func ExampleStartCerbosServer() {
 	s, err := testutil.StartCerbosServer()
 	if err != nil {
-		log.Fatalf("Failed to start Cerbos server: %v", err)
+		log.Fatalf("[ERR-81] Failed to start Cerbos server: %v", err)
 	}
 
 	defer s.Stop()
 
 	c, err := client.New(s.GRPCAddr(), client.WithPlaintext())
 	if err != nil {
-		log.Fatalf("Failed to create Cerbos client: %v", err)
+		log.Fatalf("[ERR-82] Failed to create Cerbos client: %v", err)
 	}
 
 	resp, err := c.CheckResourceSet(
@@ -41,7 +41,7 @@ func ExampleStartCerbosServer() {
 			}),
 		"view", "approve")
 	if err != nil {
-		log.Fatalf("API request failed: %v", err)
+		log.Fatalf("[ERR-83] API request failed: %v", err)
 	}
 
 	fmt.Println(resp.IsAllowed("XX125", "view"))

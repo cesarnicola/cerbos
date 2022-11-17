@@ -27,7 +27,7 @@ type (
 func NewUnaryInterceptor(log Log, exclude ExcludeMethod) (grpc.UnaryServerInterceptor, error) {
 	conf, err := GetConf()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read audit configuration: %w", err)
+		return nil, fmt.Errorf("[ERR-230] failed to read audit configuration: %w", err)
 	}
 
 	var keysPresent bool

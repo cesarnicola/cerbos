@@ -10,7 +10,7 @@ import (
 	"github.com/cerbos/cerbos/client"
 )
 
-var errMoreThanOneFilter = errors.New("more than one filter specified: choose from either `tail`, `between`, `since` or `lookup`")
+var errMoreThanOneFilter = errors.New("[ERR-186] more than one filter specified: choose from either `tail`, `between`, `since` or `lookup`")
 
 type AuditFilters struct {
 	Lookup  string        `help:"View a specific record using the Cerbos Call ID"`

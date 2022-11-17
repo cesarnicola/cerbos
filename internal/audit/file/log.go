@@ -22,7 +22,7 @@ func init() {
 	audit.RegisterBackend("file", func(_ context.Context, confW *config.Wrapper) (audit.Log, error) {
 		conf := new(Conf)
 		if err := confW.GetSection(conf); err != nil {
-			return nil, fmt.Errorf("failed to read local audit log configuration: %w", err)
+			return nil, fmt.Errorf("[ERR-228] failed to read local audit log configuration: %w", err)
 		}
 
 		return NewLog(conf)
@@ -50,7 +50,7 @@ func NewLog(conf *Conf) (*Log, error) {
 
 	logger, err := zapConf.Build()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create logger: %w", err)
+		return nil, fmt.Errorf("[ERR-229] failed to create logger: %w", err)
 	}
 
 	return &Log{

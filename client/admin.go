@@ -89,7 +89,7 @@ func (c *GrpcAdminClient) AddOrUpdatePolicy(ctx context.Context, policies *Polic
 
 		req := &requestv1.AddOrUpdatePolicyRequest{Policies: all[bs:be]}
 		if _, err := c.client.AddOrUpdatePolicy(ctx, req, grpc.PerRPCCredentials(c.creds)); err != nil {
-			return fmt.Errorf("failed to send batch [%d,%d): %w", bs, be, err)
+			return fmt.Errorf("[ERR-1] failed to send batch [%d,%d): %w", bs, be, err)
 		}
 	}
 
@@ -144,7 +144,7 @@ func (c *GrpcAdminClient) auditLogs(ctx context.Context, opts AuditLogOptions) (
 	case DecisionLogs:
 		req = &requestv1.ListAuditLogEntriesRequest{Kind: requestv1.ListAuditLogEntriesRequest_KIND_DECISION}
 	default:
-		return nil, errors.New("incorrect audit log type")
+		return nil, errors.New("[ERR-2] incorrect audit log type")
 	}
 
 	switch {
@@ -176,12 +176,12 @@ func (c *GrpcAdminClient) auditLogs(ctx context.Context, opts AuditLogOptions) (
 func (c *GrpcAdminClient) ListPolicies(ctx context.Context) ([]string, error) {
 	req := &requestv1.ListPoliciesRequest{}
 	if err := req.Validate(); err != nil {
-		return nil, fmt.Errorf("could not validate list policies request: %w", err)
+		return nil, fmt.Errorf("[ERR-3] could not validate list policies request: %w", err)
 	}
 
 	p, err := c.client.ListPolicies(ctx, req, grpc.PerRPCCredentials(c.creds))
 	if err != nil {
-		return nil, fmt.Errorf("could not list policies: %w", err)
+		return nil, fmt.Errorf("[ERR-4] could not list policies: %w", err)
 	}
 
 	return p.PolicyIds, nil
@@ -192,12 +192,12 @@ func (c *GrpcAdminClient) GetPolicy(ctx context.Context, ids ...string) ([]*poli
 		Id: ids,
 	}
 	if err := req.Validate(); err != nil {
-		return nil, fmt.Errorf("could not validate get policy request: %w", err)
+		return nil, fmt.Errorf("[ERR-5] could not validate get policy request: %w", err)
 	}
 
 	res, err := c.client.GetPolicy(ctx, req, grpc.PerRPCCredentials(c.creds))
 	if err != nil {
-		return nil, fmt.Errorf("could not get policy: %w", err)
+		return nil, fmt.Errorf("[ERR-6] could not get policy: %w", err)
 	}
 
 	return res.Policies, nil
@@ -213,7 +213,7 @@ func (c *GrpcAdminClient) AddOrUpdateSchema(ctx context.Context, schemas *Schema
 
 		req := &requestv1.AddOrUpdateSchemaRequest{Schemas: all[bs:be]}
 		if _, err := c.client.AddOrUpdateSchema(ctx, req, grpc.PerRPCCredentials(c.creds)); err != nil {
-			return fmt.Errorf("failed to send batch [%d,%d): %w", bs, be, err)
+			return fmt.Errorf("[ERR-7] failed to send batch [%d,%d): %w", bs, be, err)
 		}
 	}
 
@@ -223,12 +223,12 @@ func (c *GrpcAdminClient) AddOrUpdateSchema(ctx context.Context, schemas *Schema
 func (c *GrpcAdminClient) ListSchemas(ctx context.Context) ([]string, error) {
 	req := &requestv1.ListSchemasRequest{}
 	if err := req.Validate(); err != nil {
-		return nil, fmt.Errorf("could not validate list schemas request: %w", err)
+		return nil, fmt.Errorf("[ERR-8] could not validate list schemas request: %w", err)
 	}
 
 	s, err := c.client.ListSchemas(ctx, req, grpc.PerRPCCredentials(c.creds))
 	if err != nil {
-		return nil, fmt.Errorf("could not list schemas: %w", err)
+		return nil, fmt.Errorf("[ERR-9] could not list schemas: %w", err)
 	}
 
 	return s.SchemaIds, nil
@@ -239,12 +239,12 @@ func (c *GrpcAdminClient) GetSchema(ctx context.Context, ids ...string) ([]*sche
 		Id: ids,
 	}
 	if err := req.Validate(); err != nil {
-		return nil, fmt.Errorf("could not validate get schema request: %w", err)
+		return nil, fmt.Errorf("[ERR-10] could not validate get schema request: %w", err)
 	}
 
 	res, err := c.client.GetSchema(ctx, req, grpc.PerRPCCredentials(c.creds))
 	if err != nil {
-		return nil, fmt.Errorf("could not get schema: %w", err)
+		return nil, fmt.Errorf("[ERR-11] could not get schema: %w", err)
 	}
 
 	return res.Schemas, nil
@@ -255,12 +255,12 @@ func (c *GrpcAdminClient) ReloadStore(ctx context.Context, wait bool) error {
 		Wait: wait,
 	}
 	if err := req.Validate(); err != nil {
-		return fmt.Errorf("could not validate reload store request: %w", err)
+		return fmt.Errorf("[ERR-12] could not validate reload store request: %w", err)
 	}
 
 	_, err := c.client.ReloadStore(ctx, req, grpc.PerRPCCredentials(c.creds))
 	if err != nil {
-		return fmt.Errorf("could not reload store: %w", err)
+		return fmt.Errorf("[ERR-13] could not reload store: %w", err)
 	}
 
 	return nil

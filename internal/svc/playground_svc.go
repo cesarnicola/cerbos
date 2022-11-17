@@ -101,7 +101,7 @@ func (cs *CerbosPlaygroundService) PlaygroundTest(ctx context.Context, req *requ
 
 	eng, err := comps.mkEngine(procCtx)
 	if err != nil {
-		log.Error("Failed to create engine", zap.Error(err))
+		log.Error("[ERR-592] Failed to create engine", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "failed to create engine")
 	}
 
@@ -112,7 +112,7 @@ func (cs *CerbosPlaygroundService) PlaygroundTest(ctx context.Context, req *requ
 
 	results, err := verify.Verify(procCtx, fsys, eng, verify.Config{Trace: true})
 	if err != nil {
-		log.Error("Failed to run tests", zap.Error(err))
+		log.Error("[ERR-593] Failed to run tests", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "failed to run tests")
 	}
 
@@ -148,13 +148,13 @@ func (cs *CerbosPlaygroundService) PlaygroundEvaluate(ctx context.Context, req *
 
 	auxData, err := cs.auxData.Extract(ctx, req.AuxData)
 	if err != nil {
-		log.Error("Failed to extract auxData", zap.Error(err))
+		log.Error("[ERR-594] Failed to extract auxData", zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, "failed to extract auxData")
 	}
 
 	eng, err := comps.mkEngine(procCtx)
 	if err != nil {
-		log.Error("Failed to create engine", zap.Error(err))
+		log.Error("[ERR-595] Failed to create engine", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "failed to create engine")
 	}
 
@@ -170,7 +170,7 @@ func (cs *CerbosPlaygroundService) PlaygroundEvaluate(ctx context.Context, req *
 
 	output, err := eng.Check(procCtx, inputs)
 	if err != nil {
-		log.Error("Engine check failed", zap.Error(err))
+		log.Error("[ERR-596] Engine check failed", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "policy check failed")
 	}
 
@@ -199,7 +199,7 @@ func (cs *CerbosPlaygroundService) PlaygroundProxy(ctx context.Context, req *req
 
 	eng, err := comps.mkEngine(procCtx)
 	if err != nil {
-		log.Error("Failed to create engine", zap.Error(err))
+		log.Error("[ERR-597] Failed to create engine", zap.Error(err))
 		return nil, status.Error(codes.Internal, "failed to create engine")
 	}
 
@@ -269,7 +269,7 @@ func doCompile(ctx context.Context, log *zap.Logger, files []*requestv1.File) (*
 			return nil, pf, nil
 		}
 
-		log.Error("Failed to create index", zap.Error(err))
+		log.Error("[ERR-598] Failed to create index", zap.Error(err))
 		return nil, nil, status.Errorf(codes.Internal, "failed to create index")
 	}
 
@@ -283,7 +283,7 @@ func doCompile(ctx context.Context, log *zap.Logger, files []*requestv1.File) (*
 			return nil, pf, nil
 		}
 
-		log.Error("Failed to compile", zap.Error(err))
+		log.Error("[ERR-599] Failed to compile", zap.Error(err))
 		return nil, nil, status.Errorf(codes.Internal, "failed to compile")
 	}
 
@@ -303,7 +303,7 @@ func buildFS(log *zap.Logger, files []*requestv1.File) (fs.FS, error) {
 	fsys := afero.NewMemMapFs()
 	for _, file := range files {
 		if err := afero.WriteFile(fsys, file.FileName, file.Contents, 0o644); err != nil { //nolint:gomnd
-			log.Error("Failed to create in-mem file", zap.String("file", file.FileName), zap.Error(err))
+			log.Error("[ERR-600] Failed to create in-mem file", zap.String("file", file.FileName), zap.Error(err))
 			return nil, status.Errorf(codes.Internal, "failed to create file %s", file.FileName)
 		}
 	}

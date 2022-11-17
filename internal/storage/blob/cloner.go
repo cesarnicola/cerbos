@@ -84,7 +84,7 @@ func (c *Cloner) Clone(ctx context.Context) (*CloneResult, error) {
 		}
 		if err != nil {
 			c.log.Errorw("Failed to get next item", "error", err)
-			return nil, fmt.Errorf("failed to get next object in the bucket: %w", err)
+			return nil, fmt.Errorf("[ERR-434] failed to get next object in the bucket: %w", err)
 		}
 		file := strings.TrimPrefix(obj.Key, "/")
 		eTag := obj.MD5
@@ -121,25 +121,25 @@ func (c *Cloner) downloadToFile(ctx context.Context, key, file string) (err erro
 	// Create the directories in the path
 	dir := filepath.Dir(file)
 	if err = c.fsys.MkdirAll(dir, 0o775); err != nil { //nolint:gomnd
-		return fmt.Errorf("failed to make dir %q: %w", dir, err)
+		return fmt.Errorf("[ERR-435] failed to make dir %q: %w", dir, err)
 	}
 
 	// Set up the local file
 	fd, err := c.fsys.Create(file)
 	if err != nil {
-		return fmt.Errorf("failed to create a file %q: %w", file, err)
+		return fmt.Errorf("[ERR-436] failed to create a file %q: %w", file, err)
 	}
 	defer multierr.AppendInvoke(&err, multierr.Close(fd))
 
 	r, err := c.bucket.NewReader(ctx, key, nil)
 	if err != nil {
-		return fmt.Errorf("failed to create a reader for the object %q: %w", key, err)
+		return fmt.Errorf("[ERR-437] failed to create a reader for the object %q: %w", key, err)
 	}
 	// defer multierr.AppendInvoke(&err, multierr.Close(r))
 	defer r.Close()
 
 	if _, err = io.Copy(fd, r); err != nil {
-		return fmt.Errorf("failed to read the object %q: %w", key, err)
+		return fmt.Errorf("[ERR-438] failed to read the object %q: %w", key, err)
 	}
 
 	return nil

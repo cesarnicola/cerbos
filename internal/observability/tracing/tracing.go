@@ -35,7 +35,7 @@ var conf Conf
 
 func Init(ctx context.Context) error {
 	if err := config.GetSection(&conf); err != nil {
-		return fmt.Errorf("failed to load tracing config: %w", err)
+		return fmt.Errorf("[ERR-344] failed to load tracing config: %w", err)
 	}
 
 	switch conf.Exporter {
@@ -47,7 +47,7 @@ func Init(ctx context.Context) error {
 		otel.SetTracerProvider(trace.NewNoopTracerProvider())
 		return nil
 	default:
-		return fmt.Errorf("unknown exporter %q", conf.Exporter)
+		return fmt.Errorf("[ERR-345] unknown exporter %q", conf.Exporter)
 	}
 }
 
@@ -56,7 +56,7 @@ func configureJaeger(ctx context.Context) error {
 	if conf.Jaeger.AgentEndpoint != "" {
 		agentHost, agentPort, err := net.SplitHostPort(conf.Jaeger.AgentEndpoint)
 		if err != nil {
-			return fmt.Errorf("failed to parse agent endpoint %q: %w", conf.Jaeger.AgentEndpoint, err)
+			return fmt.Errorf("[ERR-346] failed to parse agent endpoint %q: %w", conf.Jaeger.AgentEndpoint, err)
 		}
 
 		endpoint = jaeger.WithAgentEndpoint(jaeger.WithAgentHost(agentHost), jaeger.WithAgentPort(agentPort))
@@ -66,7 +66,7 @@ func configureJaeger(ctx context.Context) error {
 
 	exporter, err := jaeger.New(endpoint)
 	if err != nil {
-		return fmt.Errorf("failed to create Jaeger exporter: %w", err)
+		return fmt.Errorf("[ERR-347] failed to create Jaeger exporter: %w", err)
 	}
 
 	svcName := conf.ServiceName
@@ -80,12 +80,12 @@ func configureJaeger(ctx context.Context) error {
 func configureOTLP(ctx context.Context) error {
 	conn, err := grpc.DialContext(ctx, conf.OTLP.CollectorEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return fmt.Errorf("failed to dial otlp collector: %w", err)
+		return fmt.Errorf("[ERR-348] failed to dial otlp collector: %w", err)
 	}
 
 	exporter, err := otlp.New(ctx, otlp.WithGRPCConn(conn))
 	if err != nil {
-		return fmt.Errorf("failed to create otlp exporter: %w", err)
+		return fmt.Errorf("[ERR-349] failed to create otlp exporter: %w", err)
 	}
 
 	return configureOtel(ctx, conf.ServiceName, exporter)
@@ -105,7 +105,7 @@ func configureOtel(ctx context.Context, svcName *string, exporter tracesdk.SpanE
 		resource.WithHost(),
 		resource.WithFromEnv())
 	if err != nil {
-		return fmt.Errorf("failed to initialize otel resource: %w", err)
+		return fmt.Errorf("[ERR-350] failed to initialize otel resource: %w", err)
 	}
 
 	traceProvider := tracesdk.NewTracerProvider(

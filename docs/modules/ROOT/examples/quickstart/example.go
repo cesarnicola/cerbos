@@ -10,7 +10,7 @@ import (
 func main() {
 	c, err := cerbos.New("localhost:3593", cerbos.WithPlaintext())
 	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
+		log.Fatalf("[ERR-195] Failed to create client: %v", err)
 	}
 
 	principal := cerbos.NewPrincipal("bugs_bunny", "user")
@@ -39,7 +39,7 @@ func main() {
 
 	resp, err := c.CheckResources(context.Background(), principal, batch)
 	if err != nil {
-		log.Fatalf("Failed to check resources: %v", err)
+		log.Fatalf("[ERR-196] Failed to check resources: %v", err)
 	}
 	log.Printf("%v", resp)
 }

@@ -77,7 +77,7 @@ func New(ctx context.Context) (Store, error) {
 func NewFromConf(ctx context.Context, confWrapper *config.Wrapper) (Store, error) {
 	conf := new(Conf)
 	if err := confWrapper.GetSection(conf); err != nil {
-		return nil, fmt.Errorf("failed to get storage driver configuration: %w", err)
+		return nil, fmt.Errorf("[ERR-573] failed to get storage driver configuration: %w", err)
 	}
 
 	driversMu.RLock()
@@ -85,7 +85,7 @@ func NewFromConf(ctx context.Context, confWrapper *config.Wrapper) (Store, error
 	driversMu.RUnlock()
 
 	if !ok {
-		return nil, fmt.Errorf("unknown storage driver [%s]", conf.Driver)
+		return nil, fmt.Errorf("[ERR-574] unknown storage driver [%s]", conf.Driver)
 	}
 
 	return cons(ctx, confWrapper)

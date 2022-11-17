@@ -14,7 +14,7 @@ import (
 
 const confKey = "engine"
 
-var errEmptyDefaultVersion = errors.New("engine.defaultVersion must not be an empty string")
+var errEmptyDefaultVersion = errors.New("[ERR-295] engine.defaultVersion must not be an empty string")
 
 // Conf is optional configuration for engine.
 type Conf struct {

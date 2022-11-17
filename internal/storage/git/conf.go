@@ -100,17 +100,17 @@ func (conf *Conf) Validate() error {
 	switch conf.Protocol {
 	case "ssh", "http", "https", "file":
 	default:
-		errs = append(errs, fmt.Errorf("unknown git protocol: %s", conf.Protocol))
+		errs = append(errs, fmt.Errorf("[ERR-518] unknown git protocol: %s", conf.Protocol))
 	}
 
 	if conf.URL == "" {
-		errs = append(errs, errors.New("git URL is required"))
+		errs = append(errs, errors.New("[ERR-519] git URL is required"))
 	}
 
 	if conf.CheckoutDir == "" {
 		cacheDir, err := os.UserCacheDir()
 		if err != nil {
-			errs = append(errs, fmt.Errorf("checkoutDir unspecified and failed to determine user cache dir: %w", err))
+			errs = append(errs, fmt.Errorf("[ERR-520] checkoutDir unspecified and failed to determine user cache dir: %w", err))
 		} else {
 			conf.CheckoutDir = filepath.Join(cacheDir, util.AppName, "git")
 		}

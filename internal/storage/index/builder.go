@@ -307,11 +307,11 @@ func logBuildFailure(logger *zap.Logger, level zapcore.Level, err *BuildError) {
 func checkValidDir(fsys fs.FS, dir string) error {
 	finfo, err := fs.Stat(fsys, dir)
 	if err != nil {
-		return fmt.Errorf("failed to stat %s: %w", dir, err)
+		return fmt.Errorf("[ERR-556] failed to stat %s: %w", dir, err)
 	}
 
 	if !finfo.IsDir() {
-		return fmt.Errorf("not a directory: %s", dir)
+		return fmt.Errorf("[ERR-557] not a directory: %s", dir)
 	}
 
 	return nil

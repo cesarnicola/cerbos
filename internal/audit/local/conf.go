@@ -27,9 +27,9 @@ const (
 )
 
 var (
-	errEmptyStoragePath    = errors.New("storagePath should not be empty")
-	errInvalidBufferSize   = errors.New("bufferSize must be at least 1")
-	errInvalidMaxBatchSize = errors.New("maxBatchSize must be at least 1")
+	errEmptyStoragePath    = errors.New("[ERR-240] storagePath should not be empty")
+	errInvalidBufferSize   = errors.New("[ERR-241] bufferSize must be at least 1")
+	errInvalidMaxBatchSize = errors.New("[ERR-242] maxBatchSize must be at least 1")
 )
 
 // Conf is optional configuration for local Audit.
@@ -66,7 +66,7 @@ func (c *Conf) Validate() error {
 	}
 
 	if c.RetentionPeriod < minRetentionPeriod || c.RetentionPeriod > maxRetentionPeriod {
-		return fmt.Errorf("retentionPeriod must be between %s and %s", minRetentionPeriod, maxRetentionPeriod)
+		return fmt.Errorf("[ERR-243] retentionPeriod must be between %s and %s", minRetentionPeriod, maxRetentionPeriod)
 	}
 
 	if c.Advanced.BufferSize < 1 {
@@ -78,7 +78,7 @@ func (c *Conf) Validate() error {
 	}
 
 	if c.Advanced.FlushInterval < minFlushInterval {
-		return fmt.Errorf("flushInterval must be at least %s", minFlushInterval)
+		return fmt.Errorf("[ERR-244] flushInterval must be at least %s", minFlushInterval)
 	}
 
 	return nil

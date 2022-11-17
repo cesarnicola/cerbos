@@ -25,7 +25,7 @@ func buildLambdaAST(e *exprpb.Expr_Comprehension) (*lambdaAST, error) {
 	var step *exprpb.Expr_CallExpr
 	var ok bool
 	if step, ok = e.LoopStep.ExprKind.(*exprpb.Expr_CallExpr); !ok {
-		return nil, fmt.Errorf("expected loop-step expression type CallExpr, got: %T", e.LoopStep.ExprKind)
+		return nil, fmt.Errorf("[ERR-320] expected loop-step expression type CallExpr, got: %T", e.LoopStep.ExprKind)
 	}
 	switch step.CallExpr.Function {
 	case operators.LogicalAnd:
@@ -46,11 +46,11 @@ func buildLambdaAST(e *exprpb.Expr_Comprehension) (*lambdaAST, error) {
 		case *exprpb.Expr_ConstExpr:
 			obj.operator = ExistsOne
 		default:
-			return nil, fmt.Errorf("expected loop-accu-init expression type ConstExpr or ListExpr, got: %T", e.AccuInit.ExprKind)
+			return nil, fmt.Errorf("[ERR-321] expected loop-accu-init expression type ConstExpr or ListExpr, got: %T", e.AccuInit.ExprKind)
 		}
 		obj.lambdaExpr = step.CallExpr.Args[0]
 	default:
-		return nil, fmt.Errorf("unexpected loop-step function: %q", step.CallExpr.Function)
+		return nil, fmt.Errorf("[ERR-322] unexpected loop-step function: %q", step.CallExpr.Function)
 	}
 
 	return obj, nil

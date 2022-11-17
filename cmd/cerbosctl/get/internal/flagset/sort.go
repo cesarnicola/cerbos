@@ -15,11 +15,11 @@ type Sort struct {
 
 func (s Sort) Validate(kind policy.Kind, listing bool) error {
 	if !listing && s.SortBy != SortByNone {
-		return fmt.Errorf("--sort-by flag is only available when listing")
+		return fmt.Errorf("[ERR-159] --sort-by flag is only available when listing")
 	}
 
 	if listing && kind == policy.DerivedRolesKind && s.SortBy == SortByVersion {
-		return fmt.Errorf("value of --sort-by flag cannot be %q when listing derived_roles", SortByVersion)
+		return fmt.Errorf("[ERR-160] value of --sort-by flag cannot be %q when listing derived_roles", SortByVersion)
 	}
 
 	return nil

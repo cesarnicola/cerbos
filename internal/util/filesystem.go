@@ -15,7 +15,7 @@ import (
 
 var supportedFileTypes = map[string]struct{}{".yaml": {}, ".yml": {}, ".json": {}}
 
-var ErrNoMatchingFiles = errors.New("no matching files")
+var ErrNoMatchingFiles = errors.New("[ERR-617] no matching files")
 
 // SchemasDirectory is the name of the special directory containing schemas. It is defined here to avoid an import loop.
 const SchemasDirectory = "_schemas"
@@ -65,7 +65,7 @@ func IsHidden(fileName string) bool {
 func LoadFromJSONOrYAML(fsys fs.FS, path string, dest proto.Message) error {
 	f, err := fsys.Open(path)
 	if err != nil {
-		return fmt.Errorf("failed to open %s: %w", path, err)
+		return fmt.Errorf("[ERR-618] failed to open %s: %w", path, err)
 	}
 
 	defer f.Close()

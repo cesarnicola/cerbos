@@ -28,7 +28,7 @@ func (c *Cmd) Run(k *kong.Kong, ctx *cmdclient.Context) error {
 			return errPrint
 		}
 
-		return fmt.Errorf("failed to retrieve version information from the server: %w", err)
+		return fmt.Errorf("[ERR-194] failed to retrieve version information from the server: %w", err)
 	}
 
 	_, err = fmt.Fprintf(k.Stdout, "Server version %s; commit sha: %s, build date: %s\n", r.Version, r.Commit, r.BuildDate)

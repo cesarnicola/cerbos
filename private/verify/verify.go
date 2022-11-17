@@ -35,7 +35,7 @@ func Files(ctx context.Context, fsys fs.FS) (*policyv1.TestResults, error) {
 			}
 		}
 
-		return nil, fmt.Errorf("failed to build index: %w", err)
+		return nil, fmt.Errorf("[ERR-638] failed to build index: %w", err)
 	}
 
 	store := disk.NewFromIndexWithConf(idx, &disk.Conf{})
@@ -43,12 +43,12 @@ func Files(ctx context.Context, fsys fs.FS) (*policyv1.TestResults, error) {
 	compiler := internalcompile.NewManagerFromDefaultConf(ctx, store, schemaMgr)
 	eng, err := engine.NewEphemeral(compiler, schemaMgr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create engine: %w", err)
+		return nil, fmt.Errorf("[ERR-639] failed to create engine: %w", err)
 	}
 
 	results, err := verify.Verify(ctx, fsys, eng, verify.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to run tests: %w", err)
+		return nil, fmt.Errorf("[ERR-640] failed to run tests: %w", err)
 	}
 
 	return results, nil
@@ -61,7 +61,7 @@ type simpleChecker interface {
 func WithCustomChecker(ctx context.Context, fsys fs.FS, eng simpleChecker) (*policyv1.TestResults, error) {
 	results, err := verify.Verify(ctx, fsys, checkFunc(eng.Check), verify.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to run tests: %w", err)
+		return nil, fmt.Errorf("[ERR-641] failed to run tests: %w", err)
 	}
 
 	return results, nil

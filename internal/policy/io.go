@@ -16,7 +16,7 @@ import (
 func ReadPolicyFromFile(fsys fs.FS, path string) (*policyv1.Policy, error) {
 	f, err := fsys.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open %s: %w", path, err)
+		return nil, fmt.Errorf("[ERR-353] failed to open %s: %w", path, err)
 	}
 
 	defer f.Close()

@@ -196,7 +196,7 @@ func policyKindToGet(kind policy.Kind) string {
 	case policy.ResourceKind:
 		return "rp"
 	default:
-		panic(fmt.Errorf("unknown policy kind %d", kind))
+		panic(fmt.Errorf("[ERR-193] unknown policy kind %d", kind))
 	}
 }
 

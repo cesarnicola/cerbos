@@ -7,4 +7,4 @@ import (
 	"errors"
 )
 
-var ErrNoResults = errors.New("no results")
+var ErrNoResults = errors.New("[ERR-509] no results")

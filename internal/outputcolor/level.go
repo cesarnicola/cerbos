@@ -76,7 +76,7 @@ func scan(ctx *kong.DecodeContext) (*Level, error) {
 func parse(v any) (*Level, error) {
 	s, ok := v.(string)
 	if !ok {
-		return nil, fmt.Errorf("invalid flag value (expected string, got %T)", v)
+		return nil, fmt.Errorf("[ERR-351] invalid flag value (expected string, got %T)", v)
 	}
 
 	switch s {
@@ -96,7 +96,7 @@ func parse(v any) (*Level, error) {
 		return pointer(Ansi16m), nil
 
 	default:
-		return nil, fmt.Errorf("invalid value for output color level: %q", s)
+		return nil, fmt.Errorf("[ERR-352] invalid value for output color level: %q", s)
 	}
 }
 
